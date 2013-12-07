@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-public class Map {
+public class Map implements GameTask{
 	protected char[][] map;
     protected int mapSizeX;
     protected int mapSizeY;
@@ -23,6 +23,13 @@ public class Map {
     
     public Map(MainPanel main){
     	mainPanel = main;
+    }
+    
+
+    @Override
+    public void init(String filename) {
+    	
+    	
     }
     
     public void loadMap(String filename){
@@ -90,6 +97,25 @@ public class Map {
     public void destMap(){
     	map = null;
     	eventList.clear();
+    }
+    
+    @Override
+    public void append(GameTask obj) {
+    	// TODO 自動生成されたメソッド・スタブ
+    	
+    }
+    
+    @Override
+    public void done() {
+    	// TODO 自動生成されたメソッド・スタブ
+    	
+    }
+    
+    
+    @Override
+    public void update() {
+    	// TODO 自動生成されたメソッド・スタブ
+    	
     }
     
     public Point getSizeTile(){

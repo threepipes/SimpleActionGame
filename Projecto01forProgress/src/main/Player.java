@@ -33,16 +33,31 @@ public class Player extends ActiveElement{
 		life = 10;
 	}
 	
+	@Override
+	public void init() {
+		loadImage("hito.png");
+	}
+	
+	@Override
+	public void append(GameTask obj) {
+		
+	}
+	
+	@Override
+	public void update() {
+		
+	}
+	
 	public void attack(){
 		if(bltList.size() < BUL_NUM) bltList.add(new Bullet(x+Size/2/2-8/2, y+Size/2-4/2, 8, 4, dx, dy, stage));
 	}
 	
-	public void move(int offsetX, int offsetY){
+	public void move(){
 		super.move();
 		if(bltList.size() > 0){
 			Iterator<Bullet> it = bltList.iterator();
 			while(it.hasNext()){
-				it.next().move(offsetX, offsetY);
+				it.next().move();
 			}
 		}
 	}
@@ -130,5 +145,10 @@ public class Player extends ActiveElement{
 		}
 	}
 	
+	@Override
+	public void done() {
+		// TODO 自動生成されたメソッド・スタブ
+		
+	}
 
 }

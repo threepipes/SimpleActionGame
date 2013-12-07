@@ -8,6 +8,7 @@ import java.util.Random;
 public class Enemy extends ActiveElement{
 	protected static final int Size = 24;
 	protected static Random rand = new Random();
+	
 	public Enemy(double x, double y, Map stage) {
 		super(x, y, Size, Size, stage);
 		if(rand.nextInt(2) == 0) dx = -1;
@@ -15,6 +16,19 @@ public class Enemy extends ActiveElement{
 		ay = 1;
 		// TODO 自動生成されたコンストラクター・スタブ
 	}
+	
+	@Override
+	public void init() {
+		// TODO 自動生成されたメソッド・スタブ
+		
+	}
+	
+	@Override
+	public void append(GameTask obj) {
+		// TODO 自動生成されたメソッド・スタブ
+		
+	}
+	
 	@Override
 	public void draw(Graphics g, int offsetX, int offsetY) {
 		// TODO 自動生成されたメソッド・スタブ
@@ -23,9 +37,17 @@ public class Enemy extends ActiveElement{
 		
 	}
 	
+	
+	
 	public void walk(){
 		if(dx>0) walkRight();
 		else walkLeft();
+	}
+	
+	@Override
+	public void update() {
+		walk();
+		move();
 	}
 	
 	public void move(){
@@ -71,6 +93,12 @@ public class Enemy extends ActiveElement{
 				vy = 0;
 			}
 		}
+	}
+	
+	@Override
+	public void done() {
+		// TODO 自動生成されたメソッド・スタブ
+		
 	}
 
 }
