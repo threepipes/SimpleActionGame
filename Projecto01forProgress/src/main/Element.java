@@ -1,10 +1,9 @@
 package main;
 
-import java.awt.Graphics;
 import java.awt.Rectangle;
 
 
-public abstract class Element implements GameTask{
+public class Element {
 	protected double x;
 	protected double y;
 	protected double vx = 0;
@@ -27,13 +26,8 @@ public abstract class Element implements GameTask{
 		this.stage = stage;
 	}
 	
-	public abstract void init();
 	
-	public abstract void append(GameTask obj);
-	
-	public abstract void done();
-	
-	public void draw(Graphics g, int offsetX, int offsetY) {
+	public void move(int offsetX, int offsetY){
 		if(y+vy <= 0-sizey+offsetY || y+vy >= 600+sizey+offsetY) onWindow = false;
 		else{
 			y+= vy;
@@ -42,12 +36,7 @@ public abstract class Element implements GameTask{
 		else{
 			x+= vx;
 		}	
-		// TODO 自動生成されたメソッド・スタブ
-		
 	}
-	
-	public abstract void update();
-	
 	
 	public Rectangle getRect(){
 		return new Rectangle((int)x,(int)y,sizex,sizey);
