@@ -12,6 +12,12 @@ public class Element {
 	protected double ay = 0;
 	protected int sizex;
 	protected int sizey;
+	protected int colx;
+	protected int coly;
+	protected int colxs;
+	protected int colys;
+	
+	
 	protected boolean isAlive;
 	protected boolean onWindow;
 	protected Map stage;
@@ -21,25 +27,29 @@ public class Element {
 		this.y = y;
 		this.sizex = sizex;
 		this.sizey = sizey;
+		this.colx = 0;
+		this.coly = 0;
+		this.colxs = sizex;
+		this.colys = sizey;
 		isAlive = true;
 		onWindow = true;
 		this.stage = stage;
 	}
 	
+	public void moveTo(int x, int y){
+		this.x = x;
+		this.y = y;
+	}
 	
-	public void move(int offsetX, int offsetY){
-		if(y+vy <= 0-sizey+offsetY || y+vy >= 600+sizey+offsetY) onWindow = false;
-		else{
-			y+= vy;
-		}
-		if(x+vx <= 0-sizex+offsetX || x+vx >= 800+sizex+offsetX) onWindow = false;
-		else{
-			x+= vx;
-		}	
+	public void checkOnWindow(int offsetX, int offsetY){
+		// 200‚Ì‰æ–ÊŠO—P—\
+		if((y+vy <= -200-sizey+offsetY || y+vy >= 800+sizey+offsetY)
+				|| (x+vx <= -200-sizex+offsetX || x+vx >= 1000+sizex+offsetX))
+			onWindow = false;
 	}
 	
 	public Rectangle getRect(){
-		return new Rectangle((int)x,(int)y,sizex,sizey);
+		return new Rectangle((int)x+colx,(int)y+coly,colxs,colys);
 	}
 	
 	public boolean checkHit(Element ele){

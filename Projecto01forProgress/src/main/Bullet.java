@@ -17,12 +17,16 @@ public class Bullet extends Element{
 	}
 	
 	public void draw(Graphics g, int offsetX, int offsetY){
+		super.checkOnWindow(offsetX, offsetY);
 		if(onWindow) g.fillOval((int)x-offsetX, (int)y-offsetY, sizex, sizey);
 		else isAlive = false;
 	}
 	
-	public void move(int offsetX, int offsetY){
-		super.move(offsetX, offsetY);
+	public void move(){
+		if(onWindow){
+			x+=vx;
+			y+=vy;
+		}
 		if(stage.checkHitBlock((int)x, (int)y, sizex, sizey) != null) isAlive = false;
 	}
 

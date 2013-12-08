@@ -23,8 +23,6 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 	private static final int KEY_DOWN = 8;
 	private static final int KEY_ATTACK = 16;
 
-
-	
 	private int keymask = 0;
 	private int actmask = 0;
 	
@@ -32,9 +30,7 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 	private int offsetY = 0;	
 
 	private Player player;
-	private List<Enemy> enemyList = new ArrayList<Enemy>();
 	
-
 	public static final int MAP_NUM = 3;
 	private int mapNo = 0;
 	private Map[] stage = new Map[MAP_NUM];	
@@ -45,20 +41,14 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 		addKeyListener(this);
 
 		for(int i=0; i<MAP_NUM; i++)stage[i] = new Map(this);
-		stage[mapNo].loadMap("map0"+mapNo+".dat");
-		stage[mapNo].loadEvent("map_event0"+mapNo+".evt");
-		
-		
 		player = new Player(40, 1700, stage[mapNo]);
+		stage[mapNo].init("map0"+mapNo+".dat","map_event0"+mapNo+".evt", player, 40, 1700);
 		
 		Thread anime = new Thread(this);
 		anime.start();
 		player.loadImage("hito.png");
 	}
 	
-	public void addEnemy(Enemy enemy){
-		enemyList.add(enemy);
-	}
 
 	private void setOffset(){
 		offsetX = (int) (player.getX() - Width/2);
@@ -75,12 +65,6 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 	
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
-		
-		player.draw(g, offsetX, offsetY);
-		Iterator<Enemy> it = enemyList.iterator();
-		while(it.hasNext()){
-			it.next().draw(g, offsetX, offsetY);
-		}
 		stage[mapNo].draw(g, offsetX, offsetY);
 		
 		if(DEBUG){
@@ -94,20 +78,8 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 	
 	public void update(){
 		setOffset();
-		
 		doKeyEvent();
-		player.move(offsetX, offsetY);
-		Iterator<Enemy> it = enemyList.iterator();
-		while(it.hasNext()){
-			Enemy temp = it.next();
-			temp.walk();
-			temp.move();
-			if(player.checkHit(temp)) player.damage(1);
-			if(player.checkFired(temp)){
-				temp.death();
-				it.remove();
-			}
-		}
+		stage[mapNo].update();
 		
 	}
 	
@@ -119,20 +91,21 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 				MapEvent me = (MapEvent)e;
 				
 				if(mapNo != me.toMap){
-					enemyList.clear();
+					// player‚ª•Ç‚Ì’†‚És‚­ŠëŒ¯‚ª‚ ‚é(—vF–³“Gˆ—)
 					stage[mapNo].destMap();
 					mapNo = me.toMap;
-					stage[mapNo].loadMap("map0"+mapNo+".dat");
-					stage[mapNo].loadEvent("map_event0"+mapNo+".evt");
+					stage[mapNo].init("map0"+mapNo+".dat","map_event0"+mapNo+".evt", player
+							, me.toX*stage[mapNo].BLOCK_SIZE, me.toY*stage[mapNo].BLOCK_SIZE);
 				}
-				player = new Player(me.toX*stage[mapNo].BLOCK_SIZE, me.toY*stage[mapNo].BLOCK_SIZE, stage[mapNo]);
-				player.loadImage("hito.png");
 			}
 		}
 	}
 	
 	private void doKeyEvent(){
-		if((keymask & KEY_LEFT) > 0) player.walkLeft();
+		if((keymask & KEY_DOWN) > 0){
+			player.sit();
+		}
+		if((keymask & KEY_LEFT) > 0 && (keymask & KEY_RIGHT) == 0) player.walkLeft();
 		if((keymask & KEY_RIGHT) > 0) player.walkRight();
 		if((keymask & KEY_UP) > 0 && (~actmask & KEY_UP) > 0){
 			player.jump();
@@ -216,7 +189,5 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 			
 		}
 	}
-	
-	
 
 }

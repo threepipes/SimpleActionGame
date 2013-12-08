@@ -17,12 +17,24 @@ public class Map {
     protected int mapSizeY;
     protected int offsetX;
     protected int offsetY;
+    
+    protected Player player;
+    protected List<Enemy> enemyList = new ArrayList<Enemy>();
+    
     protected List<Event> eventList = new ArrayList<Event>();
     protected MainPanel mainPanel;
     public static final int BLOCK_SIZE = 32;
     
     public Map(MainPanel main){
     	mainPanel = main;
+    }
+    
+    public void init(String mapName, String eventName, Player player, int toX, int toY){
+    	loadMap(mapName);
+    	loadEvent(eventName);
+    	this.player = player;
+    	player.changeMap(this);
+    	player.moveTo(toX, toY);
     }
     
     public void loadMap(String filename){
@@ -89,11 +101,29 @@ public class Map {
     
     public void destMap(){
     	map = null;
+    	player = null;
+    	enemyList.clear();
     	eventList.clear();
     }
     
     public Point getSizeTile(){
     	return new Point(mapSizeX, mapSizeY);
+    }
+    
+    protected void update(){
+
+		player.move();
+		Iterator<Enemy> it = enemyList.iterator();
+		while(it.hasNext()){
+			Enemy temp = it.next();
+			temp.walk();
+			temp.move();
+			if(player.checkHit(temp)) player.damage(1,player.getX()<=temp.getX());
+			if(player.checkFired(temp)){
+				temp.death();
+				it.remove();
+			}
+		}
     }
     
     public Point checkHitBlock(int x, int y, int sizeX, int sizeY){
@@ -124,7 +154,6 @@ public class Map {
     		if(e.eventX == mappointX && e.eventY == mappointY)
     			return e;
     	}
-    	
     	return null;
     }
     
@@ -135,15 +164,29 @@ public class Map {
     	int tileLastY = tileFirstY + mainPanel.Height/BLOCK_SIZE + 2;
     	if(tileLastX > mapSizeX) tileLastX = mapSizeX;
     	if(tileLastY > mapSizeY) tileLastY = mapSizeY;
-    	int difX = offsetX%BLOCK_SIZE;
-    	int difY = offsetY%BLOCK_SIZE;
     	
+    	// draw elements
+		player.draw(g, offsetX, offsetY);
+		Iterator<Enemy> it = enemyList.iterator();
+		while(it.hasNext()){
+			it.next().draw(g, offsetX, offsetY);
+		}
+    	
+		// draw map
     	for(int i=tileFirstX; i<tileLastX; i++)
     		for(int j=tileFirstY; j<tileLastY; j++){
     			g.setColor(Color.ORANGE);
     			switch(map[j][i]){
     			case 'E':
-    				mainPanel.addEnemy(new Enemy(i*BLOCK_SIZE, j*BLOCK_SIZE, this));
+    				enemyList.add(new Enemy(i*BLOCK_SIZE, j*BLOCK_SIZE, this));
+    				map[j][i] = 0;
+    				break;
+    			case 'R':
+    				enemyList.add(new Enemy(i*BLOCK_SIZE, j*BLOCK_SIZE, this, 1));
+    				map[j][i] = 0;
+    				break;
+    			case 'L':
+    				enemyList.add(new Enemy(i*BLOCK_SIZE, j*BLOCK_SIZE, this, -1));
     				map[j][i] = 0;
     				break;
     			case 'B':

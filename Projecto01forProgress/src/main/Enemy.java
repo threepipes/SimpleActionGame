@@ -15,6 +15,15 @@ public class Enemy extends ActiveElement{
 		ay = 1;
 		// TODO 自動生成されたコンストラクター・スタブ
 	}
+	
+	public Enemy(double x, double y, Map stage, int dx) {
+		super(x, y, Size, Size, stage);
+		this.dx = dx;
+		maxspeed = 3;
+		ay = 1;
+		// TODO 自動生成されたコンストラクター・スタブ
+	}
+	
 	@Override
 	public void draw(Graphics g, int offsetX, int offsetY) {
 		// TODO 自動生成されたメソッド・スタブ

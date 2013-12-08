@@ -11,9 +11,18 @@ public abstract class ActiveElement extends Element{
 	protected double maxspeed = 3;
 	protected int dx = 1;
 	protected int dy = 0;
+
+	protected boolean nodamage = false;
+	protected boolean stop = false;
+	protected long stopTime;
+	
 	protected Image image = null;
 	protected int icount = 0;
 	protected int iact = 0;
+	
+
+	protected static final int LOOP = -1;
+	protected static final int END = -2;
 	
 	public ActiveElement(double x, double y, int sizex, int sizey, Map stage) {
 		super(x, y, sizex, sizey, stage);
@@ -50,7 +59,6 @@ public abstract class ActiveElement extends Element{
 		}
 		if(onGround){
 			vy = 0;
-			iact = 0;
 		}
 	}
 	
@@ -86,14 +94,10 @@ public abstract class ActiveElement extends Element{
 		else{
 			if(vx >= 0){
 				x = p.x*stage.BLOCK_SIZE - sizex;
-//				if(vx > 5) vx = -2;
-//				else
-					vx = 0;
+				vx = 0;
 			}else{
 				x = (p.x+1)*stage.BLOCK_SIZE;
-//				if(vx < -5) vx = 2;
-//				else
-					vx = 0;
+				vx = 0;
 			}
 		}
 		// check y after x
