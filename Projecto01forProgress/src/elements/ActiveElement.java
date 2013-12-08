@@ -50,6 +50,14 @@ public abstract class ActiveElement extends Element{
 		return vx;
 	}
 	
+	public double getVY(){
+		return vy;
+	}
+	
+	public boolean isGround(){
+		return onGround;
+	}
+	
 	public void changeDir(int dx){
 		this.dx = dx;
 	}
@@ -103,8 +111,8 @@ public abstract class ActiveElement extends Element{
 		Point p = stage.checkHitBlock((int)newX, (int)y, sizex, sizey);
 		if(p == null){
 			x = newX;
-			if(vx > 0) dx = 1;
-			else if(vx < 0) dx = -1;
+//			if(vx > 0) dx = 1;
+//			else if(vx < 0) dx = -1;
 		}
 		else{
 			if(vx >= 0){

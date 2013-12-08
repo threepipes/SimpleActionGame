@@ -4,66 +4,59 @@ import java.awt.Point;
 import java.util.HashMap;
 
 public class Actions {
-	protected class ActMap{
-		public int[][][] map;
-		public HashMap<String, Action> actions;
-		public ActMap(int[][][] map, HashMap<String, Action> actions){
-			this.map = map;
-			this.actions = actions;
-		}
-	}
-	private static final int LOOP = -1;
-	private static final int END = -2;
-	protected static HashMap<String, ActMap> actmaps = new HashMap<String,ActMap>();
+	protected static HashMap<String, HashMap<String, Action>> actmaps = new HashMap<String,HashMap<String, Action>>();
 	protected int nowPriority;
+	protected String nowMotionName;
 	protected String parentName;
+	protected boolean req = false;
 	protected int iact = 0;
 	protected int icount = 0;
+	protected Action reserve;
+	protected Action defaultAction;
 	
-	public Actions(ActiveElement parent, int[][][] map, HashMap<String, Action> actionList){
+	public Actions(ActiveElement parent, HashMap<String, Action> actionList/*, Action def*/){
 		parentName = parent.getName();
-		if(actmaps.get(parentName) == null){
-			actmaps.put(parentName, new ActMap(map, actionList));
+		if(!actmaps.containsKey(parentName)){
+			actmaps.put(parentName, actionList);
 		}
+//		defaultAction = def;
+	}
+	
+	public void update(){
+		nowPriority = -1;
+//		reserve = null;
+//		reserve = defaultAction;
 	}
 	
 	public Point getDrawPoint(){
-		return new Point(iact,icount);
+		return actmaps.get(parentName).get(nowMotionName).getDrawPoint();
 	}
 	
-	public void changeCount(){
-		int[][][] map = actmaps.get(parentName).map;
-		if(iact<map.length){
-			if(icount<map[iact].length-1){
-				icount++;
-				if(map[iact][icount][0] == LOOP)
-					icount = map[iact][icount][1];
-				else if(map[iact][icount][0] == END){
-					iact = map[iact][icount][1];
-					icount = 0;
-				}
-				if(map[iact][icount][2] > 0){
-					// set stop
-//					stop = true;
-//					stopTime = System.currentTimeMillis() + map[iact][icount][2];
-				}
-			}else{
-				icount = 0;
+	public void motionRequest(String act){
+		Action tmp = actmaps.get(parentName).get(act);
+		if(tmp != null){
+			nowMotionName = act;
+			req = true;
+		}
+	}
+	
+	public void reserveAction(String actname){
+		Action act = actmaps.get(parentName).get(actname);
+		if(act != null){
+			if(act.actionable(nowPriority)){
+				reserve = act;
+				nowPriority = act.getPriority();
+				if(!req){
+					nowMotionName = actname;
+				}else req = false;
+				
 			}
-		}else{
-			iact = 0;
-			icount = 0;
 		}
 	}
 	
-	public void doAction(String actname){
-		ActMap actmap = actmaps.get(parentName);
-		if(actmap != null){
-			Action act = actmap.actions.get(actname);
-			if(act.actionable(nowPriority)) act.action();
-			nowPriority = act.getPriority();
-			iact = act.getIAct();
-			changeCount();
-		}
+	public void doAction(){
+		if(reserve != null){
+			reserve.action();
+		}// 何もアクションがない場合はどうする？
 	}
 }

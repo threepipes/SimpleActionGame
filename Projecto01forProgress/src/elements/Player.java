@@ -57,11 +57,12 @@ public class Player extends ActiveElement{
 	
 	public void loadActions(/*filename*/){
 		HashMap<String, Action> acts = new HashMap<String, Action>();
-		loadAction(acts,new ActStand(0, this));
-		loadAction(acts,new ActWalk(1, this));
-		loadAction(acts,new ActDash(2, this));
-		loadAction(acts,new ActJump(3, this));
-		actions = new Actions(this, actmap, acts);
+		loadAction(acts,new ActStand(0, this, actmap[0], actmap[1]));
+		loadAction(acts,new ActWalk(1, this, actmap[2], actmap[3]));
+		loadAction(acts,new ActDash(2, this, actmap[4], actmap[5]));
+		loadAction(acts,new ActJump(3, this, actmap[6], actmap[7]));
+		loadAction(acts,new ActSit(4, this, actmap[10], actmap[11], 12));
+		actions = new Actions(this, acts);
 	}
 	
 	public void loadAction(HashMap<String, Action> acts, Action act){
@@ -74,7 +75,11 @@ public class Player extends ActiveElement{
 	
 	
 	public void action(String action){
-		actions.doAction(action);
+		actions.reserveAction(action);
+	}
+	
+	public void motionRequest(String act){
+		actions.motionRequest(act);
 	}
 	
 	public void attack(){
@@ -114,9 +119,9 @@ public class Player extends ActiveElement{
 			// Ç¢Ç∏ÇÍÇÕActiveElementÇ…à⁄Ç∑ó\íË
 //			chengeAct();
 //			changeCount();
-			Point tmp = actions.getDrawPoint();
-			iact = tmp.x;
-			icount = tmp.y;
+//			Point tmp = actions.getDrawPoint();
+//			iact = tmp.x;
+//			icount = tmp.y;
 		}else{
 			// doTimer
 			if(System.currentTimeMillis() > stopTime)
@@ -222,19 +227,21 @@ public class Player extends ActiveElement{
 	
 	
 	public void draw(Graphics g, int offsetX, int offsetY){
+
+		actions.doAction();
 		// ÇµÇ·Ç™ÇÒÇ≈è¨Ç≥Ç≠Ç»Ç¡ÇΩÉTÉCÉYÇñﬂÇ∑
 		coly = 0;
 		colys = 24;
 		
-		
+		Point point = actions.getDrawPoint();
 		g.setColor(Color.BLACK);
 		if(image == null)g.drawRect((int)x-offsetX, (int)y-offsetY, Size/2-1, Size-1);
 		else{
 			try{
 				if(visible)g.drawImage(image, (int)x-offsetX, (int)y-offsetY,
 						(int)x-offsetX+sizex, (int)y-offsetY+sizey,
-						actmap[iact][icount][0]*sizex, actmap[iact][icount][1]*sizey,
-						actmap[iact][icount][0]*sizex+sizex-1, actmap[iact][icount][1]*sizey+sizey-1
+						point.x*sizex, point.y*sizey,
+						point.x*sizex+sizex-1, point.y*sizey+sizey-1
 						,null);
 			}catch(ArrayIndexOutOfBoundsException e){
 				System.err.println("iact:"+iact+"; icount:"+icount);
@@ -253,6 +260,8 @@ public class Player extends ActiveElement{
 				tmp.draw(g, offsetX, offsetY);
 			}
 		}
+		
+		actions.update();
 	}
 	
 	public class FlashTask extends TimerTask{

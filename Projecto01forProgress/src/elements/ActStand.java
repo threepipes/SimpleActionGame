@@ -3,8 +3,8 @@ package elements;
 import main.KeyWords;
 
 public class ActStand extends Action{
-	public ActStand(int priority, ActiveElement parent) {
-		super(priority, parent);
+	public ActStand(int priority, ActiveElement parent, int[][] mapr, int[][] mapl) {
+		super(priority, parent, mapr,mapl);
 		// TODO 自動生成されたコンストラクター・スタブ
 		name = KeyWords.STAND;
 	}

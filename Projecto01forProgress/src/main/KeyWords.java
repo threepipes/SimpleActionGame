@@ -9,5 +9,6 @@ public class KeyWords {
 	public static final String DASH = "dash";
 	public static final String JUMP = "jump";
 	public static final String STAND = "stand";
+	public static final String SIT = "sit";
 	
 }

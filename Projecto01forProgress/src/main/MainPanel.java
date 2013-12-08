@@ -11,6 +11,8 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import elements.Player;
+
 public class MainPanel extends JPanel implements KeyListener, Runnable{
 	private static final boolean DEBUG = true;
 	
@@ -53,14 +55,14 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 	private void setOffset(){
 		offsetX = (int) (player.getX() - Width/2);
 		if(offsetX < 0) offsetX = 0;
-		else if(offsetX > stage[mapNo].getSizeTile().x*stage[mapNo].BLOCK_SIZE - Width)
-			offsetX = stage[mapNo].getSizeTile().x*stage[mapNo].BLOCK_SIZE - Width;
-		if(stage[mapNo].getSizeTile().x*stage[mapNo].BLOCK_SIZE < Width) offsetX = 0; 
+		else if(offsetX > stage[mapNo].getSizeTile().x*Map.BLOCK_SIZE - Width)
+			offsetX = stage[mapNo].getSizeTile().x*Map.BLOCK_SIZE - Width;
+		if(stage[mapNo].getSizeTile().x*Map.BLOCK_SIZE < Width) offsetX = 0; 
 		offsetY = (int) (player.getY() - Height/2);
 		if(offsetY < 0) offsetY = 0;
-		else if(offsetY > stage[mapNo].getSizeTile().y*stage[mapNo].BLOCK_SIZE - Height)
-			offsetY = stage[mapNo].getSizeTile().y*stage[mapNo].BLOCK_SIZE - Height;
-		if(stage[mapNo].getSizeTile().x*stage[mapNo].BLOCK_SIZE < Width) offsetX = 0; 
+		else if(offsetY > stage[mapNo].getSizeTile().y*Map.BLOCK_SIZE - Height)
+			offsetY = stage[mapNo].getSizeTile().y*Map.BLOCK_SIZE - Height;
+		if(stage[mapNo].getSizeTile().x*Map.BLOCK_SIZE < Width) offsetX = 0; 
 	}
 	
 	public void paintComponent(Graphics g){
@@ -70,7 +72,7 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 		if(DEBUG){
 			g.setColor(Color.BLACK);
 			g.drawString("px:"+(int)player.getX()+"; py:"+(int)player.getY()
-					+"; (xtile):"+(int)player.getX()/stage[mapNo].BLOCK_SIZE+"; (ytile):"+(int)player.getY()/stage[mapNo].BLOCK_SIZE, 40, 20);
+					+"; (xtile):"+(int)player.getX()/Map.BLOCK_SIZE+"; (ytile):"+(int)player.getY()/Map.BLOCK_SIZE, 40, 20);
 			g.drawString("ox:"+offsetX+"; oy:"+offsetY+"; Life:"+player.getLife()+"; mapNo:"+mapNo, 40, 40);
 			g.drawString("keymask:"+Integer.toBinaryString(keymask)+"; actmask:"+Integer.toBinaryString(actmask), 40, 60);
 		}
@@ -95,20 +97,25 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 					stage[mapNo].destMap();
 					mapNo = me.toMap;
 					stage[mapNo].init("map0"+mapNo+".dat","map_event0"+mapNo+".evt", player
-							, me.toX*stage[mapNo].BLOCK_SIZE, me.toY*stage[mapNo].BLOCK_SIZE);
+							, me.toX*Map.BLOCK_SIZE, me.toY*Map.BLOCK_SIZE);
 				}
 			}
 		}
 	}
 	
 	private void doKeyEvent(){
-		if((keymask & KEY_DOWN) > 0){
-			player.sit();
+		if((keymask & KEY_LEFT) > 0 && (keymask & KEY_RIGHT) == 0){
+			player.changeDir(-1);
+			if(player.getVX() < -5)player.action(KeyWords.DASH);
+			else player.action(KeyWords.WALK);
 		}
-		if((keymask & KEY_LEFT) > 0 && (keymask & KEY_RIGHT) == 0) player.walkLeft();
-		if((keymask & KEY_RIGHT) > 0) player.walkRight();
+		if((keymask & KEY_RIGHT) > 0){
+			player.changeDir(1);
+			if(player.getVX() > 5)player.action(KeyWords.DASH);
+			else player.action(KeyWords.WALK);
+		}
 		if((keymask & KEY_UP) > 0 && (~actmask & KEY_UP) > 0){
-			player.jump();
+			player.action(KeyWords.JUMP);
 			actmask |= KEY_UP;
 		}
 		if((keymask & KEY_DOWN) > 0 && (~actmask & KEY_DOWN) > 0){
@@ -119,8 +126,16 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 			player.attack();
 			actmask |= KEY_ATTACK;
 		}
-		if((keymask & ~KEY_ATTACK & ~KEY_DOWN) == 0)player.stand();
-		// player ‚ªattack down‚Ì‚Ý‚È‚ç‚ÎCplayer ‚Í stand
+		if((keymask & ~KEY_ATTACK & ~KEY_UP) == 0){
+			player.action(KeyWords.STAND);
+			if(player.getVX() != 0) player.motionRequest(KeyWords.WALK);
+		}
+		// player ‚ªattack ‚Ì‚Ý‚È‚ç‚ÎCplayer ‚Í stand
+		if(!player.isGround() && player.getVY() >= 0) 
+			player.motionRequest(KeyWords.JUMP);
+		if((keymask & KEY_DOWN) > 0){
+			player.action(KeyWords.SIT);
+		}
 	}
 	
 	@Override

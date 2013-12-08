@@ -11,6 +11,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import elements.Enemy;
+import elements.Player;
+
 public class Map {
 	protected char[][] map;
     protected int mapSizeX;
@@ -160,8 +163,8 @@ public class Map {
     public void draw(Graphics g, int offsetX, int offsetY){
     	int tileFirstX = offsetX/BLOCK_SIZE;
     	int tileFirstY = offsetY/BLOCK_SIZE;
-    	int tileLastX = tileFirstX + mainPanel.Width/BLOCK_SIZE + 2;
-    	int tileLastY = tileFirstY + mainPanel.Height/BLOCK_SIZE + 2;
+    	int tileLastX = tileFirstX + MainPanel.Width/BLOCK_SIZE + 2;
+    	int tileLastY = tileFirstY + MainPanel.Height/BLOCK_SIZE + 2;
     	if(tileLastX > mapSizeX) tileLastX = mapSizeX;
     	if(tileLastY > mapSizeY) tileLastY = mapSizeY;
     	

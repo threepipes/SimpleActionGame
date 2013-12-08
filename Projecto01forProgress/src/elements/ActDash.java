@@ -3,8 +3,8 @@ package elements;
 import main.KeyWords;
 
 public class ActDash   extends Action{
-	public ActDash(int priority, ActiveElement parent) {
-		super(priority, parent);
+	public ActDash(int priority, ActiveElement parent, int[][] mapr, int[][] mapl) {
+		super(priority, parent, mapr, mapl);
 		name = KeyWords.DASH;
 	}
 	
