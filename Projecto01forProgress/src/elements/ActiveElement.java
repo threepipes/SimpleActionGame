@@ -1,4 +1,4 @@
-package main;
+package elements;
 
 import java.awt.Graphics;
 import java.awt.Image;
@@ -6,7 +6,11 @@ import java.awt.Point;
 
 import javax.swing.ImageIcon;
 
+import main.Map;
+
 public abstract class ActiveElement extends Element{
+	protected String name;
+	
 	protected boolean onGround = false;
 	protected double maxspeed = 3;
 	protected int dx = 1;
@@ -19,6 +23,8 @@ public abstract class ActiveElement extends Element{
 	protected Image image = null;
 	protected int icount = 0;
 	protected int iact = 0;
+	
+	protected Actions actions;
 	
 
 	protected static final int LOOP = -1;
@@ -34,6 +40,18 @@ public abstract class ActiveElement extends Element{
 		ImageIcon icon = new ImageIcon(getClass().getResource("/"+filename));
 		image = icon.getImage();
 		
+	}
+	
+	public String getName(){
+		return name;
+	}
+	
+	public double getVX(){
+		return vx;
+	}
+	
+	public void changeDir(int dx){
+		this.dx = dx;
 	}
 	
 	public void walkRight(){
@@ -56,9 +74,6 @@ public abstract class ActiveElement extends Element{
 		if(vx < 0){
 			vx += ax/2;
 			if(vx > 0) vx = 0;
-		}
-		if(onGround){
-			vy = 0;
 		}
 	}
 	
@@ -93,10 +108,10 @@ public abstract class ActiveElement extends Element{
 		}
 		else{
 			if(vx >= 0){
-				x = p.x*stage.BLOCK_SIZE - sizex;
+				x = p.x*Map.BLOCK_SIZE - sizex;
 				vx = 0;
 			}else{
-				x = (p.x+1)*stage.BLOCK_SIZE;
+				x = (p.x+1)*Map.BLOCK_SIZE;
 				vx = 0;
 			}
 		}
@@ -108,11 +123,11 @@ public abstract class ActiveElement extends Element{
 		}
 		else{
 			if(vy >= 0){
-				y = p.y*stage.BLOCK_SIZE - sizey;
+				y = p.y*Map.BLOCK_SIZE - sizey;
 				onGround = true;
 				vy = 0;
 			}else if(vy < 0){
-				y = (p.y+1)*stage.BLOCK_SIZE;
+				y = (p.y+1)*Map.BLOCK_SIZE;
 				vy = 0;
 			}
 		}

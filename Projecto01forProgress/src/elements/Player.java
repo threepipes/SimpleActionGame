@@ -1,12 +1,17 @@
-package main;
+package elements;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import main.KeyWords;
+import main.Map;
 
 public class Player extends ActiveElement{
 	protected List<Bullet> bltList = new ArrayList<Bullet>();
@@ -26,10 +31,10 @@ public class Player extends ActiveElement{
 	protected int[][][] actmap = {
 			{{0,0,0},{0,0,0},{LOOP,1,0}},								//0 stand r
 			{{0,0,0},{1,0,0},{LOOP,1,0}},								//1 stand l
-			{{0,0,0},{4,1,0},{0,1,0},{1,1,0},{1,1,0},{2,1,0},{3,1,0},{LOOP,1,0}},	//2 dash r
-			{{0,0,0},{4,2,0},{0,2,0},{1,2,0},{1,2,0},{2,2,0},{3,2,0},{LOOP,1,0}},	//3 dash l
-			{{0,0,0},{1,1,0},{2,1,0},{3,1,0},{4,1,0},{LOOP,1,0}},				//4 accel r
-			{{0,0,0},{1,2,0},{2,2,0},{3,2,0},{4,2,0},{LOOP,1,0}},				//5 accel l
+			{{0,0,0},{1,1,0},{2,1,0},{3,1,0},{4,1,0},{LOOP,1,0}},				//2 accel r
+			{{0,0,0},{1,2,0},{2,2,0},{3,2,0},{4,2,0},{LOOP,1,0}},				//3 accel l
+			{{0,0,0},{4,1,0},{0,1,0},{1,1,0},{1,1,0},{2,1,0},{3,1,0},{LOOP,1,0}},	//4 dash r
+			{{0,0,0},{4,2,0},{0,2,0},{1,2,0},{1,2,0},{2,2,0},{3,2,0},{LOOP,1,0}},	//5 dash l
 			{{0,0,0},{0,3,0},{1,3,0},{LOOP,1,0}},							//6 Jump r
 			{{0,0,0},{0,4,0},{1,4,0},{LOOP,1,0}},							//7 Jump l
 			{{0,0,0},{2,3,0},{3,3,0},{4,3,0},{4,3,0},{4,3,0},{3,3,0},{END,0,0}},		//8 land r
@@ -42,14 +47,34 @@ public class Player extends ActiveElement{
 	
 	public Player(double x, double y, Map stage) {
 		super(x, y, Size/2, Size, stage);
+		name = KeyWords.PLAYER;
 		sizex = Size/2;
 		sizey = Size;
 		this.maxspeed = 8;
 		life = 10;
+		loadActions(/*filename*/);
+	}
+	
+	public void loadActions(/*filename*/){
+		HashMap<String, Action> acts = new HashMap<String, Action>();
+		loadAction(acts,new ActStand(0, this));
+		loadAction(acts,new ActWalk(1, this));
+		loadAction(acts,new ActDash(2, this));
+		loadAction(acts,new ActJump(3, this));
+		actions = new Actions(this, actmap, acts);
+	}
+	
+	public void loadAction(HashMap<String, Action> acts, Action act){
+		acts.put(act.getName(), act);
 	}
 	
 	public void changeMap(Map stage){
 		this.stage = stage;
+	}
+	
+	
+	public void action(String action){
+		actions.doAction(action);
 	}
 	
 	public void attack(){
@@ -87,8 +112,11 @@ public class Player extends ActiveElement{
 			if(!oldflag && onGround) land = true;
 
 			// ‚¢‚¸‚ê‚ÍActiveElement‚ÉˆÚ‚·—\’è
-			chengeAct();
-			changeCount();
+//			chengeAct();
+//			changeCount();
+			Point tmp = actions.getDrawPoint();
+			iact = tmp.x;
+			icount = tmp.y;
 		}else{
 			// doTimer
 			if(System.currentTimeMillis() > stopTime)
@@ -161,8 +189,8 @@ public class Player extends ActiveElement{
 				}
 				if(actmap[iact][icount][2] > 0){
 					// set stop
-					stop = true;
-					stopTime = System.currentTimeMillis() + actmap[iact][icount][2];
+//					stop = true;
+//					stopTime = System.currentTimeMillis() + actmap[iact][icount][2];
 				}
 			}else{
 				icount = 0;

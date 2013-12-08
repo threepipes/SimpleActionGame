@@ -1,6 +1,8 @@
-package main;
+package elements;
 
 import java.awt.Rectangle;
+
+import main.Map;
 
 
 public class Element {

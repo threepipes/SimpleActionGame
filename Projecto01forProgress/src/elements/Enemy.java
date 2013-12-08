@@ -1,15 +1,19 @@
-package main;
+package elements;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.util.Random;
 
+import main.KeyWords;
+import main.Map;
+
 public class Enemy extends ActiveElement{
 	protected static final int Size = 24;
 	protected static Random rand = new Random();
 	public Enemy(double x, double y, Map stage) {
 		super(x, y, Size, Size, stage);
+		name = KeyWords.ENEMY;
 		if(rand.nextInt(2) == 0) dx = -1;
 		maxspeed = 3;
 		ay = 1;
@@ -54,11 +58,11 @@ public class Enemy extends ActiveElement{
 		}
 		else{
 			if(vx >= 0){
-				x = p.x*stage.BLOCK_SIZE - sizex;
+				x = p.x*Map.BLOCK_SIZE - sizex;
 				if(vx > 5) vx = -2;
 				else vx = 0;
 			}else{
-				x = (p.x+1)*stage.BLOCK_SIZE;
+				x = (p.x+1)*Map.BLOCK_SIZE;
 				if(vx < -5) vx = 2;
 				else vx = 0;
 			}
@@ -72,11 +76,11 @@ public class Enemy extends ActiveElement{
 		}
 		else{
 			if(vy >= 0){
-				y = p.y*stage.BLOCK_SIZE - sizey;
+				y = p.y*Map.BLOCK_SIZE - sizey;
 				onGround = true;
 				vy = 0;
 			}else if(vy < 0){
-				y = (p.y+1)*stage.BLOCK_SIZE;
+				y = (p.y+1)*Map.BLOCK_SIZE;
 				vy = 0;
 			}
 		}

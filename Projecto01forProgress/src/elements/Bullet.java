@@ -1,6 +1,8 @@
-package main;
+package elements;
 
 import java.awt.Graphics;
+
+import main.Map;
 
 public class Bullet extends Element{
 	protected static final double Speed = 16;
