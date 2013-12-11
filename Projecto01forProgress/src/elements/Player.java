@@ -3,10 +3,7 @@ package elements;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -14,16 +11,13 @@ import main.KeyWords;
 import main.Map;
 
 public class Player extends ActiveElement{
-	protected List<Bullet> bltList = new ArrayList<Bullet>();
-	protected Bullet blt = null;
+//	protected Bullet blt = null;
 	protected boolean land = false;
-	protected boolean sit = false;
+//	protected boolean sit = false;
 	protected boolean damaged = false;
 	protected boolean visible = true;
-	protected boolean oldflag;
-	protected int life;
+	protected boolean oldflag = false;
 
-	private static final int BUL_NUM = 4;
 	protected static final int Size = 24;
 	private static final boolean DEBUG = true;
 	
@@ -37,12 +31,12 @@ public class Player extends ActiveElement{
 			{{0,0,0},{4,2,0},{0,2,0},{1,2,0},{1,2,0},{2,2,0},{3,2,0},{LOOP,1,0}},	//5 dash l
 			{{0,0,0},{0,3,0},{1,3,0},{LOOP,1,0}},							//6 Jump r
 			{{0,0,0},{0,4,0},{1,4,0},{LOOP,1,0}},							//7 Jump l
-			{{0,0,0},{2,3,0},{3,3,0},{4,3,0},{4,3,0},{4,3,0},{3,3,0},{END,0,0}},		//8 land r
-			{{0,0,0},{2,4,0},{3,4,0},{4,4,0},{4,4,0},{4,4,0},{3,4,0},{END,1,0}},		//9 land l
+			{{0,0,0},{2,3,0},{3,3,0},{4,3,2},{3,3,0},{END,1,0}},		//8 land r
+			{{0,0,0},{2,4,0},{3,4,0},{4,4,2},{3,4,0},{END,1,0}},		//9 land l
 			{{0,0,0},{2,3,0},{3,3,0},{4,3,0},{LOOP,3,0}},		//10 sit r
 			{{0,0,0},{2,4,0},{3,4,0},{4,4,0},{LOOP,3,0}},		//11 sit l
-			{{0,0,0},{1,4,0},{2,4,0},{3,0,0},{LOOP,3,0}},		//13 damaged l
-			{{0,0,0},{1,3,0},{2,3,0},{2,0,0},{LOOP,3,0}},		//12 damaged r
+			{{0,0,0},{1,3,0},{2,3,0},{2,0,3},{END,1,0}},		//12 damaged r
+			{{0,0,0},{1,4,0},{2,4,0},{3,0,3},{END,1,0}},		//13 damaged l
 			};
 	
 	public Player(double x, double y, Map stage) {
@@ -61,7 +55,10 @@ public class Player extends ActiveElement{
 		loadAction(acts,new ActWalk(1, this, actmap[2], actmap[3]));
 		loadAction(acts,new ActDash(2, this, actmap[4], actmap[5]));
 		loadAction(acts,new ActJump(3, this, actmap[6], actmap[7]));
+		loadAction(acts,new ActGun(4, this, 3));
 		loadAction(acts,new ActSit(4, this, actmap[10], actmap[11], 12));
+		loadAction(acts,new ActLand(5, this, actmap[8], actmap[9]));
+		loadAction(acts,new ActDamage(6, this, actmap[12], actmap[13]));
 		actions = new Actions(this, acts);
 	}
 	
@@ -82,135 +79,28 @@ public class Player extends ActiveElement{
 		actions.motionRequest(act);
 	}
 	
-	public void attack(){
-		if(!sit && !damaged && bltList.size() < BUL_NUM) bltList.add(new Bullet(x+Size/2/2-8/2, y+Size/2-4/2, 8, 4, dx, dy, stage));
+	public void clearAttackCols(){
+		attackCols.clear();
 	}
 	
+	public boolean landed(){
+		if(!oldflag && onGround && oldVY >= 30) return true;
+		oldflag = onGround;
+		return false;
+	}// 1ループで1回しか呼び出してはいけない
 	
-	public void walkLeft(){
-		if(!sit && !damaged) super.walkLeft();
-	}
-	
-	public void walkRight(){
-		if(!sit && !damaged) super.walkRight();
-	}
-	
-	public void sit(){
-		if(!damaged && onGround){
-			sit = true;
-			if(vx != 0){
-				vx -= vx*0.1;
-				vx = (int)vx;
-				coly = 12;
-				colys = 12;
-			}
-		}
-	}
 	
 	public void move(){
-		if(!stop){
-			if(damaged){
-				vx = vx*0.98;
-			}
-			oldflag = onGround;
-			super.move();
-			if(!oldflag && onGround) land = true;
+		oldflag = onGround;
+		super.move();
+		if(!oldflag && onGround) land = true;
 
-			// いずれはActiveElementに移す予定
-//			chengeAct();
-//			changeCount();
-//			Point tmp = actions.getDrawPoint();
-//			iact = tmp.x;
-//			icount = tmp.y;
-		}else{
-			// doTimer
-			if(System.currentTimeMillis() > stopTime)
-				stop = false;
-			
-		}
-		if(bltList.size() > 0){
-			Iterator<Bullet> it = bltList.iterator();
-			while(it.hasNext()){
-				it.next().move();
-			}
-		}
 	}
 	
-	public boolean checkFired(Element enemy){
-		Iterator<Bullet> it = bltList.iterator();
-
-		while(it.hasNext()){
-			if(enemy.checkHit(it.next())){
-				it.remove();
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public void chengeAct(){
-		if(damaged){
-			if(dx>0)iact = 12;
-			else iact = 13;
-		}else if(sit){
-			if(dx>0)iact = 10;
-			else iact = 11;
-			sit = false;
-		}else if(vx==0 && land){
-			if(dx>0)iact = 8;
-			else iact = 9;
-		}else if(!onGround){
-			if(dx>0)iact = 6;
-			else iact = 7;
-			if(vy<0) iact-=6;
-		}else{
-			land = false;
-			if(vx>0){
-				if(vx>5) iact = 2;
-				else iact = 4;
-			}
-			else if(vx<0){
-				if(vx<-5) iact = 3;
-				else iact = 5;
-			}
-			else {
-				if(dx>0)iact = 0;
-				else iact = 1;
-			}
-		}
-	}
-	
-	
-	public void changeCount(){
-		if(iact<actmap.length){
-			if(icount<actmap[iact].length-1){
-				icount++;
-				if(actmap[iact][icount][0] == LOOP)
-					icount = actmap[iact][icount][1];
-				else if(actmap[iact][icount][0] == END){
-					land = false;
-					iact = actmap[iact][icount][1];
-					icount = 0;
-				}
-				if(actmap[iact][icount][2] > 0){
-					// set stop
-//					stop = true;
-//					stopTime = System.currentTimeMillis() + actmap[iact][icount][2];
-				}
-			}else{
-				icount = 0;
-			}
-		}else{
-			iact = 0;
-			icount = 0;
-		}
-		
-	}
 	
 	public void damage(int val, boolean isLeft){
 		if(!nodamage){
 			life -= val;
-			damaged = true;
 			nodamage = true;
 			vy = -10;
 			onGround = false;
@@ -218,6 +108,7 @@ public class Player extends ActiveElement{
 			TimerTask task = new FlashTask();
 			Timer timer = new Timer();
 			timer.scheduleAtFixedRate(task, 0, 200);
+			action(KeyWords.DAMAGE);
 		}
 	}
 	
@@ -228,10 +119,10 @@ public class Player extends ActiveElement{
 	
 	public void draw(Graphics g, int offsetX, int offsetY){
 
-		actions.doAction();
 		// しゃがんで小さくなったサイズを戻す
 		coly = 0;
 		colys = 24;
+		actions.doAction();
 		
 		Point point = actions.getDrawPoint();
 		g.setColor(Color.BLACK);
@@ -252,14 +143,8 @@ public class Player extends ActiveElement{
 			}
 			
 		}
-		if(bltList.size() > 0){
-			Iterator<Bullet> it = bltList.iterator();
-			while(it.hasNext()){
-				Bullet tmp = it.next();
-				if(!tmp.getAlive()) it.remove();
-				tmp.draw(g, offsetX, offsetY);
-			}
-		}
+		g.setColor(Color.BLACK);
+		super.draw(g, offsetX, offsetY);
 		
 		actions.update();
 	}
@@ -269,7 +154,6 @@ public class Player extends ActiveElement{
 
 		@Override
 		public void run() {
-//			if(count == 9) dx = -dx;
 			if(count < 10){
 				damaged = false;
 				visible = !visible;

@@ -4,7 +4,7 @@ import java.awt.Graphics;
 
 import main.Map;
 
-public class Bullet extends Element{
+public class Bullet extends AttackCollision{
 	protected static final double Speed = 16;
 	
 	
@@ -14,22 +14,12 @@ public class Bullet extends Element{
 		this.vy = dy*Speed;
 	}
 	
-	public boolean getAlive(){
-		return isAlive;
-	}
-	
+
 	public void draw(Graphics g, int offsetX, int offsetY){
 		super.checkOnWindow(offsetX, offsetY);
-		if(onWindow) g.fillOval((int)x-offsetX, (int)y-offsetY, sizex, sizey);
+		if(onWindow && !hit && (null == stage.checkHitBlock((int)x, (int)y, sizex, sizey)))
+			g.fillOval((int)x-offsetX, (int)y-offsetY, sizex, sizey);
 		else isAlive = false;
-	}
-	
-	public void move(){
-		if(onWindow){
-			x+=vx;
-			y+=vy;
-		}
-		if(stage.checkHitBlock((int)x, (int)y, sizex, sizey) != null) isAlive = false;
 	}
 
 }

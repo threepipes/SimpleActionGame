@@ -5,9 +5,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import javax.swing.JPanel;
 
@@ -94,6 +91,7 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 				
 				if(mapNo != me.toMap){
 					// playerが壁の中に行く危険がある(要：無敵処理)
+					player.clearAttackCols();
 					stage[mapNo].destMap();
 					mapNo = me.toMap;
 					stage[mapNo].init("map0"+mapNo+".dat","map_event0"+mapNo+".evt", player
@@ -123,7 +121,7 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 			actmask |= KEY_DOWN;
 		}
 		if((keymask & KEY_ATTACK) > 0 && (~actmask & KEY_ATTACK) > 0){
-			player.attack();
+			player.action(KeyWords.GUN);
 			actmask |= KEY_ATTACK;
 		}
 		if((keymask & ~KEY_ATTACK & ~KEY_UP) == 0){
@@ -131,7 +129,10 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 			if(player.getVX() != 0) player.motionRequest(KeyWords.WALK);
 		}
 		// player がattack のみならば，player は stand
-		if(!player.isGround() && player.getVY() >= 0) 
+
+		if(player.landed()){
+			player.action(KeyWords.LAND);
+		}else if(!player.isGround() && player.getVY() >= 0) 
 			player.motionRequest(KeyWords.JUMP);
 		if((keymask & KEY_DOWN) > 0){
 			player.action(KeyWords.SIT);

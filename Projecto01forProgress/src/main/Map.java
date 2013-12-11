@@ -40,6 +40,10 @@ public class Map {
     	player.moveTo(toX, toY);
     }
     
+    public void setPlayer(Player player){
+    	this.player = player;
+    }
+    
     public void loadMap(String filename){
     	BufferedReader reader = new BufferedReader(new InputStreamReader(
     			getClass().getResourceAsStream("/"+filename)));
@@ -134,10 +138,10 @@ public class Map {
     	int mappointX2 = (x+sizeX-1)/BLOCK_SIZE;
     	int mappointY1 = (y)/BLOCK_SIZE;
     	int mappointY2 = (y+sizeY-1)/BLOCK_SIZE;
-    	if(mapSizeX < (mappointX1 > mappointX2 ? mappointX1 : mappointX2)
-    		|| mapSizeY < (mappointY1 > mappointY2 ? mappointY1 : mappointY2)
-    		|| 0 > (mappointX1 < mappointX2 ? mappointX1 : mappointX2)
-    		|| 0 > (mappointY1 < mappointY2 ? mappointY1 : mappointY2)){
+    	if(mapSizeX <= (mappointX2)
+    		|| mapSizeY <= (mappointY2)
+    		|| 0 > (mappointX1)
+    		|| 0 > (mappointY1)){
     		System.err.println("mapover:"+mappointX1+":"+mappointX2+":"+mappointY1+":"+mappointY2);
     		return null;
     	}

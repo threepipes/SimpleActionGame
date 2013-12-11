@@ -3,6 +3,9 @@ package elements;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
 
 import main.KeyWords;
@@ -11,12 +14,17 @@ import main.Map;
 public class Enemy extends ActiveElement{
 	protected static final int Size = 24;
 	protected static Random rand = new Random();
+	protected AttackCollision defaultAC;
 	public Enemy(double x, double y, Map stage) {
 		super(x, y, Size, Size, stage);
 		name = KeyWords.ENEMY;
 		if(rand.nextInt(2) == 0) dx = -1;
 		maxspeed = 3;
 		ay = 1;
+		attackCols = new ArrayList<AttackCollision>();
+		defaultAC = new AttackCollision(x,y,sizex,sizey, stage);
+		attackCols.add(defaultAC);
+		loadAction();
 		// TODO 自動生成されたコンストラクター・スタブ
 	}
 	
@@ -25,20 +33,35 @@ public class Enemy extends ActiveElement{
 		this.dx = dx;
 		maxspeed = 3;
 		ay = 1;
+		attackCols = new ArrayList<AttackCollision>();
+		defaultAC = new AttackCollision(x,y,sizex,sizey, stage);
+		attackCols.add(defaultAC);
+		loadAction();
 		// TODO 自動生成されたコンストラクター・スタブ
+	}
+	
+	public void loadAction(){
+		HashMap<String, Action> acts = new HashMap<String, Action>();
+//		loadAction(acts,new ActStand(0, this, null,null));
+		loadAction(acts,new ActWalk(1, this, null, null));
+		actions = new Actions(this, acts);
+	}
+	
+	public void loadAction(HashMap<String, Action> acts, Action act){
+		acts.put(act.getName(), act);
 	}
 	
 	@Override
 	public void draw(Graphics g, int offsetX, int offsetY) {
 		// TODO 自動生成されたメソッド・スタブ
+		actions.doAction();
 		g.setColor(Color.RED);
 		if(isAlive)g.drawRect((int)x-offsetX, (int)y-offsetY, Size-1, Size-1);
-		
+		actions.update();
 	}
 	
 	public void walk(){
-		if(dx>0) walkRight();
-		else walkLeft();
+		actions.reserveAction(KeyWords.WALK);
 	}
 	
 	public void move(){
@@ -84,6 +107,7 @@ public class Enemy extends ActiveElement{
 				vy = 0;
 			}
 		}
+		defaultAC.moveTo(x, y);
 	}
 
 }

@@ -5,21 +5,22 @@ import java.util.HashMap;
 
 public class Actions {
 	protected static HashMap<String, HashMap<String, Action>> actmaps = new HashMap<String,HashMap<String, Action>>();
-	protected int nowPriority;
+	protected int nowPriority = -1;
 	protected String nowMotionName;
+	protected String oldMotionName;
+	protected String nowActionName;
 	protected String parentName;
 	protected boolean req = false;
+	protected boolean conFin = true; // isContinueActionFinished
 	protected int iact = 0;
 	protected int icount = 0;
 	protected Action reserve;
-	protected Action defaultAction;
 	
-	public Actions(ActiveElement parent, HashMap<String, Action> actionList/*, Action def*/){
+	public Actions(ActiveElement parent, HashMap<String, Action> actionList){
 		parentName = parent.getName();
 		if(!actmaps.containsKey(parentName)){
 			actmaps.put(parentName, actionList);
 		}
-//		defaultAction = def;
 	}
 	
 	public void update(){
@@ -29,27 +30,44 @@ public class Actions {
 	}
 	
 	public Point getDrawPoint(){
-		return actmaps.get(parentName).get(nowMotionName).getDrawPoint();
+		Action act = actmaps.get(parentName).get(conFin ? nowMotionName : nowActionName);
+		if(!conFin)
+			if(act instanceof ActionContinue)
+				conFin = ((ActionContinue)act).isFin();
+		Point p = act.getDrawPoint();
+		if(p == null){
+			p = actmaps.get(parentName).get(oldMotionName).getDrawPoint();
+			nowMotionName = oldMotionName;
+		}
+		return p;
 	}
 	
 	public void motionRequest(String act){
-		Action tmp = actmaps.get(parentName).get(act);
-		if(tmp != null){
-			nowMotionName = act;
-			req = true;
+		if(conFin){
+			Action tmp = actmaps.get(parentName).get(act);
+
+			if(tmp != null){
+				oldMotionName = nowMotionName;
+				nowMotionName = act;
+				req = true;
+			}
 		}
 	}
 	
 	public void reserveAction(String actname){
-		Action act = actmaps.get(parentName).get(actname);
-		if(act != null){
-			if(act.actionable(nowPriority)){
-				reserve = act;
-				nowPriority = act.getPriority();
-				if(!req){
-					nowMotionName = actname;
-				}else req = false;
-				
+		if(conFin){
+			Action act = actmaps.get(parentName).get(actname);
+
+			if(act != null){
+				if(act.actionable(nowPriority)){
+					reserve = act;
+					nowPriority = act.getPriority();
+					if(!req){
+						oldMotionName = nowMotionName;
+						nowMotionName = actname;
+					}else req = false;
+					nowActionName = actname;
+				}
 			}
 		}
 	}
@@ -58,5 +76,8 @@ public class Actions {
 		if(reserve != null){
 			reserve.action();
 		}// 何もアクションがない場合はどうする？
+		if(reserve instanceof ActionContinue){
+			conFin = false;
+		}
 	}
 }

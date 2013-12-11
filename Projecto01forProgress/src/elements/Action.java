@@ -4,7 +4,6 @@ import java.awt.Point;
 
 public abstract class Action {
 	private static final int LOOP = -1;
-	private static final int END = -2;
 	protected final int priority;
 	protected final int[][] mapR;
 	protected final int[][] mapL;
@@ -12,6 +11,8 @@ public abstract class Action {
 	protected ActiveElement parent;
 	protected String name = null;
 	protected int icount = 0;
+	protected int count = 0;
+	protected boolean stop = false;
 	
 	public Action(int priority, ActiveElement parent, int[][] motionsR, int[][] motionsL) {
 		this.priority = priority;
@@ -28,18 +29,18 @@ public abstract class Action {
 	
 	public Point getDrawPoint(){
 		int[][] map = (parent.dx == 1) ? mapR : mapL;
+		if(map == null) return null;
 		if(icount<map.length-1){
-			icount++;
+			if(!stop)icount++;
 			if(map[icount][0] == LOOP)
 				icount = map[icount][1];
-			else if(map[icount][0] == END){
-				//					iact = map[icount][1]; TODO
-				icount = 0;
-			}
 			if(map[icount][2] > 0){
-				// set stop
-				//					stop = true;
-				//					stopTime = System.currentTimeMillis() + map[iact][icount][2];
+				if(count++ < map[icount][2]){
+					stop = true;
+				}else{
+					stop = false;
+					count = 0;
+				}
 			}
 		}else{
 			icount = 0;

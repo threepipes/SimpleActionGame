@@ -3,6 +3,8 @@ package elements;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 
@@ -15,9 +17,11 @@ public abstract class ActiveElement extends Element{
 	protected double maxspeed = 3;
 	protected int dx = 1;
 	protected int dy = 0;
+	protected int life;
+	
+	protected double oldVY;
 
 	protected boolean nodamage = false;
-	protected boolean stop = false;
 	protected long stopTime;
 	
 	protected Image image = null;
@@ -25,10 +29,10 @@ public abstract class ActiveElement extends Element{
 	protected int iact = 0;
 	
 	protected Actions actions;
-	
+	protected List<AttackCollision> attackCols;
 
 	protected static final int LOOP = -1;
-	protected static final int END = -2;
+	protected static final int END = -1;
 	
 	public ActiveElement(double x, double y, int sizex, int sizey, Map stage) {
 		super(x, y, sizex, sizey, stage);
@@ -44,6 +48,10 @@ public abstract class ActiveElement extends Element{
 	
 	public String getName(){
 		return name;
+	}
+	
+	public void setLife(int life){
+		this.life = life;
 	}
 	
 	public double getVX(){
@@ -97,12 +105,24 @@ public abstract class ActiveElement extends Element{
 		}
 	}
 	
-	
+
+	public boolean checkFired(Element element){
+		if(attackCols != null){
+			Iterator<AttackCollision> it = attackCols.iterator();
+
+			while(it.hasNext()){
+				if(it.next().checkHit(element)){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 	
 	public void move(){
 
-		if(vy < 20) vy += ay;
-
+		if(vy < 30) vy += ay;
+		oldVY = vy;
 		
 		double newX = x + vx;
 		double newY = y + vy;
@@ -139,10 +159,26 @@ public abstract class ActiveElement extends Element{
 				vy = 0;
 			}
 		}
+		if(attackCols != null){
+			Iterator<AttackCollision> it = attackCols.iterator();
+			while(it.hasNext()){
+				it.next().move();
+			}
+		}
+		
 	}
 	
 	
-	public abstract void draw(Graphics g, int offsetX, int offsetY);
+	public void draw(Graphics g, int offsetX, int offsetY){
+		if(attackCols != null){
+			Iterator<AttackCollision> it = attackCols.iterator();
+			while(it.hasNext()){
+				AttackCollision tmp = it.next();
+				if(tmp.getAlive())tmp.draw(g, offsetX, offsetY);
+				else it.remove();
+			}
+		}
+	}
 
 
 }
