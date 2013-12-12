@@ -8,6 +8,8 @@ import java.awt.event.KeyListener;
 
 import javax.swing.JPanel;
 
+import elements.Event;
+import elements.MapEvent;
 import elements.Player;
 
 public class MainPanel extends JPanel implements KeyListener, Runnable{

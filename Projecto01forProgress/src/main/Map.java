@@ -7,11 +7,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
 import elements.Enemy;
+import elements.Event;
+import elements.MapEvent;
 import elements.Player;
 
 public class Map {
@@ -24,7 +27,7 @@ public class Map {
     protected Player player;
     protected List<Enemy> enemyList = new ArrayList<Enemy>();
     
-    protected List<Event> eventList = new ArrayList<Event>();
+    protected HashMap<String, Event> eventMap = new HashMap<String, Event>();
     protected MainPanel mainPanel;
     public static final int BLOCK_SIZE = 32;
     
@@ -85,7 +88,7 @@ public class Map {
 					int toY = Integer.parseInt(tokens.nextToken());
 					MapEvent me = new MapEvent(x,y,toMap,toX,toY);
 					if(x > 0 && x < mapSizeX
-			    			&& y > 0 && y < mapSizeY)eventList.add(me);
+			    			&& y > 0 && y < mapSizeY)eventMap.put(x+","+y, me);
 					else System.err.println("event x or y over");
 					
 					map[y][x] = 'D';//TODO
@@ -110,7 +113,7 @@ public class Map {
     	map = null;
     	player = null;
     	enemyList.clear();
-    	eventList.clear();
+    	eventMap.clear();
     }
     
     public Point getSizeTile(){
@@ -155,13 +158,13 @@ public class Map {
     public Event checkEvent(double x, double y){
     	int mappointX = (int)x/BLOCK_SIZE;
     	int mappointY = (int)y/BLOCK_SIZE;
-    	Iterator<Event> it = eventList.iterator();
-    	while(it.hasNext()){
-    		Event e = it.next();
-    		if(e.eventX == mappointX && e.eventY == mappointY)
-    			return e;
-    	}
-    	return null;
+//    	Iterator<Event> it = eventList.iterator();
+//    	while(it.hasNext()){
+//    		Event e = it.next();
+//    		if(e.eventX == mappointX && e.eventY == mappointY)
+//    			return e;
+//    	}
+    	return eventMap.get(mappointX+","+mappointY);
     }
     
     public void draw(Graphics g, int offsetX, int offsetY){

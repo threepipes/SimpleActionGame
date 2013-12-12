@@ -4,7 +4,7 @@ import java.awt.Point;
 import java.util.HashMap;
 
 public class Actions {
-	protected static HashMap<String, HashMap<String, Action>> actmaps = new HashMap<String,HashMap<String, Action>>();
+	protected HashMap<String, Action> actmaps;
 	protected int nowPriority = -1;
 	protected String nowMotionName;
 	protected String oldMotionName;
@@ -18,9 +18,7 @@ public class Actions {
 	
 	public Actions(ActiveElement parent, HashMap<String, Action> actionList){
 		parentName = parent.getName();
-		if(!actmaps.containsKey(parentName)){
-			actmaps.put(parentName, actionList);
-		}
+		actmaps = actionList;
 	}
 	
 	public void update(){
@@ -30,13 +28,13 @@ public class Actions {
 	}
 	
 	public Point getDrawPoint(){
-		Action act = actmaps.get(parentName).get(conFin ? nowMotionName : nowActionName);
+		Action act = actmaps.get(conFin ? nowMotionName : nowActionName);
 		if(!conFin)
 			if(act instanceof ActionContinue)
 				conFin = ((ActionContinue)act).isFin();
 		Point p = act.getDrawPoint();
 		if(p == null){
-			p = actmaps.get(parentName).get(oldMotionName).getDrawPoint();
+			p = actmaps.get(oldMotionName).getDrawPoint();
 			nowMotionName = oldMotionName;
 		}
 		return p;
@@ -44,7 +42,7 @@ public class Actions {
 	
 	public void motionRequest(String act){
 		if(conFin){
-			Action tmp = actmaps.get(parentName).get(act);
+			Action tmp = actmaps.get(act);
 
 			if(tmp != null){
 				oldMotionName = nowMotionName;
@@ -56,7 +54,7 @@ public class Actions {
 	
 	public void reserveAction(String actname){
 		if(conFin){
-			Action act = actmaps.get(parentName).get(actname);
+			Action act = actmaps.get(actname);
 
 			if(act != null){
 				if(act.actionable(nowPriority)){

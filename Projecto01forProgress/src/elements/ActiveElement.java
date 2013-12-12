@@ -70,39 +70,8 @@ public abstract class ActiveElement extends Element{
 		this.dx = dx;
 	}
 	
-	public void walkRight(){
-		if(vx < maxspeed) vx += ax;
-		dx = 1;
-		dy = 0;
-	}
-	
-	public void walkLeft(){
-		if(vx > -maxspeed) vx -= ax;
-		dx = -1;
-		dy = 0;
-	}
-	
-	public void stand(){
-		if(vx > 0){
-			vx -= ax/2;
-			if(vx < 0) vx = 0;
-		}
-		if(vx < 0){
-			vx += ax/2;
-			if(vx > 0) vx = 0;
-		}
-	}
-	
 	public void death(){
 		isAlive = false;
-	}
-	
-	
-	public void jump(){
-		if(onGround){
-			vy = -24;
-//			ay = 3;
-		}
 	}
 	
 
