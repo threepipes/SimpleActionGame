@@ -2,8 +2,9 @@ package elements;
 
 import java.util.ArrayList;
 
+import scene.Map;
+
 import main.KeyWords;
-import main.Map;
 
 public class ActGun extends Action{
 	int maxnum;

@@ -2,7 +2,8 @@ package elements;
 
 import java.awt.Graphics;
 
-import main.Map;
+import scene.Map;
+
 
 public class Bullet extends AttackCollision{
 	protected static final double Speed = 16;
@@ -17,7 +18,7 @@ public class Bullet extends AttackCollision{
 
 	public void draw(Graphics g, int offsetX, int offsetY){
 		super.checkOnWindow(offsetX, offsetY);
-		if(onWindow && !hit && (null == stage.checkHitBlock((int)x, (int)y, sizex, sizey)))
+		if(onWindow && !hit && (null == stage.checkHitBlock((int)x, (int)y, sizex, sizey, vy)))
 			g.fillOval((int)x-offsetX, (int)y-offsetY, sizex, sizey);
 		else isAlive = false;
 	}

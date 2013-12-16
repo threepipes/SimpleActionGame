@@ -8,8 +8,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
 
+import scene.Map;
+
 import main.KeyWords;
-import main.Map;
 
 public class Enemy extends ActiveElement{
 	protected static final int Size = 24;
@@ -73,7 +74,7 @@ public class Enemy extends ActiveElement{
 		double newY = y + vy;
 		
 		// check x only
-		Point p = stage.checkHitBlock((int)newX, (int)y, sizex, sizey);
+		Point p = stage.checkHitBlock((int)newX, (int)y, sizex, sizey, vy);
 		if(p == null){
 			x = newX;
 			if(vx > 0) dx = 1;
@@ -81,29 +82,29 @@ public class Enemy extends ActiveElement{
 		}
 		else{
 			if(vx >= 0){
-				x = p.x*Map.BLOCK_SIZE - sizex;
+				x = p.x - sizex;
 				if(vx > 5) vx = -2;
 				else vx = 0;
 			}else{
-				x = (p.x+1)*Map.BLOCK_SIZE;
+				x = p.x+Map.BLOCK_SIZE;
 				if(vx < -5) vx = 2;
 				else vx = 0;
 			}
 			dx = -dx;
 		}
 		// check y after x
-		p = stage.checkHitBlock((int)x, (int)newY, sizex, sizey);
+		p = stage.checkHitBlock((int)x, (int)newY, sizex, sizey, vy);
 		if(p == null){
 			y = newY;
 			onGround = false;
 		}
 		else{
 			if(vy >= 0){
-				y = p.y*Map.BLOCK_SIZE - sizey;
+				y = p.y - sizey;
 				onGround = true;
 				vy = 0;
 			}else if(vy < 0){
-				y = (p.y+1)*Map.BLOCK_SIZE;
+				y = p.y+Map.BLOCK_SIZE;
 				vy = 0;
 			}
 		}

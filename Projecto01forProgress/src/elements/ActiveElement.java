@@ -8,7 +8,8 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 
-import main.Map;
+import scene.Map;
+
 
 public abstract class ActiveElement extends Element{
 	protected String name;
@@ -97,7 +98,7 @@ public abstract class ActiveElement extends Element{
 		double newY = y + vy;
 		
 		// check x only
-		Point p = stage.checkHitBlock((int)newX, (int)y, sizex, sizey);
+		Point p = stage.checkHitBlock((int)newX, (int)y, sizex, sizey, vy);
 		if(p == null){
 			x = newX;
 //			if(vx > 0) dx = 1;
@@ -105,26 +106,26 @@ public abstract class ActiveElement extends Element{
 		}
 		else{
 			if(vx >= 0){
-				x = p.x*Map.BLOCK_SIZE - sizex;
+				x = p.x - sizex;
 				vx = 0;
 			}else{
-				x = (p.x+1)*Map.BLOCK_SIZE;
+				x = p.x+Map.BLOCK_SIZE;
 				vx = 0;
 			}
 		}
 		// check y after x
-		p = stage.checkHitBlock((int)x, (int)newY, sizex, sizey);
+		p = stage.checkHitBlock((int)x, (int)newY, sizex, sizey, vy);
 		if(p == null){
 			y = newY;
 			onGround = false;
 		}
 		else{
 			if(vy >= 0){
-				y = p.y*Map.BLOCK_SIZE - sizey;
+				y = p.y - sizey;
 				onGround = true;
 				vy = 0;
 			}else if(vy < 0){
-				y = (p.y+1)*Map.BLOCK_SIZE;
+				y = p.y+Map.BLOCK_SIZE;
 				vy = 0;
 			}
 		}

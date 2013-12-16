@@ -2,7 +2,8 @@ package elements;
 
 import java.awt.Graphics;
 
-import main.Map;
+import scene.Map;
+
 
 public class AttackCollision extends Element{
 	protected boolean hit = false;
@@ -12,7 +13,7 @@ public class AttackCollision extends Element{
 	}
 	
 	public boolean checkHitBlock(){
-		if(stage.checkHitBlock((int)x+colx, (int)y+coly, colxs, colys) == null) return false;
+		if(stage.checkHitBlock((int)x+colx, (int)y+coly, colxs, colys, vy) == null) return false;
 		return true;
 	}
 	

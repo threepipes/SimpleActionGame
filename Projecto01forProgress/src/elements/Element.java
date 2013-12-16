@@ -2,7 +2,8 @@ package elements;
 
 import java.awt.Rectangle;
 
-import main.Map;
+import scene.Map;
+
 
 
 public class Element {
@@ -41,6 +42,8 @@ public class Element {
 	public void moveTo(double x, double y){
 		this.x = x;
 		this.y = y;
+		this.vx = 0;
+		this.vy = 0;
 	}
 	
 	public void checkOnWindow(int offsetX, int offsetY){

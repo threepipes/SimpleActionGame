@@ -1,4 +1,4 @@
-package main;
+package scene;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -7,15 +7,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+
+import main.MainPanel;
 
 import elements.Enemy;
 import elements.Event;
 import elements.MapEvent;
 import elements.Player;
+import elements.TalkEvent;
 
 public class Map {
 	protected char[][] map;
@@ -27,7 +29,7 @@ public class Map {
     protected Player player;
     protected List<Enemy> enemyList = new ArrayList<Enemy>();
     
-    protected HashMap<String, Event> eventMap = new HashMap<String, Event>();
+    protected List<Event> eventList = new ArrayList<Event>();
     protected MainPanel mainPanel;
     public static final int BLOCK_SIZE = 32;
     
@@ -86,12 +88,29 @@ public class Map {
 					int toMap = Integer.parseInt(tokens.nextToken());
 					int toX = Integer.parseInt(tokens.nextToken());
 					int toY = Integer.parseInt(tokens.nextToken());
-					MapEvent me = new MapEvent(x,y,toMap,toX,toY);
+					MapEvent me = new MapEvent(x,y,1,1,this,toMap,toX,toY);
 					if(x > 0 && x < mapSizeX
-			    			&& y > 0 && y < mapSizeY)eventMap.put(x+","+y, me);
+			    			&& y > 0 && y < mapSizeY)eventList.add(me);
 					else System.err.println("event x or y over");
 					
-					map[y][x] = 'D';//TODO
+//					map[y][x] = 'D';//TODO
+				}else if(token.equals("TALK")){
+					int x = Integer.parseInt(tokens.nextToken());
+					int y = Integer.parseInt(tokens.nextToken());
+					List<String[]> list = new ArrayList<String[]>();
+					line = reader.readLine();
+					while(!line.equals("END")){
+						String[] buf = new String[2];
+						tokens = new StringTokenizer(line, "@");
+						buf[0] = tokens.nextToken().trim();
+						buf[1] = tokens.nextToken().trim();
+						list.add(buf);
+						line = reader.readLine();
+					}
+					TalkEvent te = new TalkEvent(x,y,1,1, list, this); // TODO
+					if(x > 0 && x < mapSizeX
+			    			&& y > 0 && y < mapSizeY)eventList.add(te);
+					else System.err.println("event x or y over");
 				}else{
 					System.err.println("event name error");
 				}
@@ -113,14 +132,14 @@ public class Map {
     	map = null;
     	player = null;
     	enemyList.clear();
-    	eventMap.clear();
+    	eventList.clear();
     }
     
     public Point getSizeTile(){
     	return new Point(mapSizeX, mapSizeY);
     }
     
-    protected void update(){
+    public void update(){
 
 		player.move();
 		Iterator<Enemy> it = enemyList.iterator();
@@ -136,7 +155,7 @@ public class Map {
 		}
     }
     
-    public Point checkHitBlock(int x, int y, int sizeX, int sizeY){
+    public Point checkHitBlock(int x, int y, int sizeX, int sizeY, double vy){
     	int mappointX1 = (x)/BLOCK_SIZE;
     	int mappointX2 = (x+sizeX-1)/BLOCK_SIZE;
     	int mappointY1 = (y)/BLOCK_SIZE;
@@ -150,21 +169,31 @@ public class Map {
     	}
     	for(int i=mappointX1; i<=mappointX2; i++)
     		for(int j=mappointY1; j<=mappointY2; j++){
-    			if(map[j][i] == 'B') return new Point(i,j);
+//    			if((map[j][i] == 'u' || map[j][i] == 'U') && (vy>=0 || j==mappointY2) /*&& (i==mappointX2 && j==mappointY2)*/){
+//    				int b = map[j][i] == 'u' ? BLOCK_SIZE : BLOCK_SIZE/2;
+//    				if(y+sizeY>(j+1)*BLOCK_SIZE) y = (j+1)*BLOCK_SIZE-sizeY;
+//    				if(b - (y+sizeY-1)%BLOCK_SIZE < ((x+sizeX-1)%BLOCK_SIZE)/2+1)
+//    					return new Point(x+sizeX-1, y+sizeY-1-((y+sizeY-1)%BLOCK_SIZE+((x+sizeX-1)%BLOCK_SIZE)/2+1-b));
+//    			}else if((map[j][i] == 's' || map[j][i] == 'S') && (vy>=0 || j==mappointY2)){
+//    				int b = map[j][i] == 's' ? BLOCK_SIZE : BLOCK_SIZE/2;
+//    				int newx = BLOCK_SIZE - x%BLOCK_SIZE;
+//    				if(y+sizeY>(j+1)*BLOCK_SIZE) y = (j+1)*BLOCK_SIZE-sizeY;
+//    				if(b - (y+sizeY-1)%BLOCK_SIZE < (newx/2+1))
+//    					return new Point(x-BLOCK_SIZE, y+sizeY-1-((y+sizeY-1)%BLOCK_SIZE+(newx)/2+1-b));
+//    			}else if("usUSB".indexOf(map[j][i]) != -1)
+    			if(map[j][i] == 'B') return new Point(i*BLOCK_SIZE,j*BLOCK_SIZE);
     		}
     	return null;
     }
     
-    public Event checkEvent(double x, double y){
-    	int mappointX = (int)x/BLOCK_SIZE;
-    	int mappointY = (int)y/BLOCK_SIZE;
-//    	Iterator<Event> it = eventList.iterator();
-//    	while(it.hasNext()){
-//    		Event e = it.next();
-//    		if(e.eventX == mappointX && e.eventY == mappointY)
-//    			return e;
-//    	}
-    	return eventMap.get(mappointX+","+mappointY);
+    public Event checkEvent(){
+    	Iterator<Event> it = eventList.iterator();
+    	while(it.hasNext()){
+    		Event e = it.next();
+    		if(e.checkHit(player))
+    			return e;
+    	}
+    	return null;
     }
     
     public void draw(Graphics g, int offsetX, int offsetY){
@@ -176,11 +205,16 @@ public class Map {
     	if(tileLastY > mapSizeY) tileLastY = mapSizeY;
     	
     	// draw elements
-		player.draw(g, offsetX, offsetY);
+		Iterator<Event> ite = eventList.iterator();
+		while(ite.hasNext()){
+			ite.next().draw(g, offsetX, offsetY);
+		}
 		Iterator<Enemy> it = enemyList.iterator();
 		while(it.hasNext()){
 			it.next().draw(g, offsetX, offsetY);
 		}
+		player.draw(g, offsetX, offsetY);
+		
     	
 		// draw map
     	for(int i=tileFirstX; i<tileLastX; i++)
@@ -202,6 +236,28 @@ public class Map {
     			case 'B':
     				g.fillRect(i*BLOCK_SIZE-offsetX, j*BLOCK_SIZE-offsetY, BLOCK_SIZE, BLOCK_SIZE);
     				break;
+//    			case 'u':
+//    				int[] x = {i*BLOCK_SIZE-offsetX, (i+1)*BLOCK_SIZE-offsetX, (i+1)*BLOCK_SIZE-offsetX};
+//    				int[] y = {(j+1)*BLOCK_SIZE-offsetY, (j+1)*BLOCK_SIZE-offsetY, j*BLOCK_SIZE+BLOCK_SIZE/2-offsetY};
+//    				g.fillPolygon(x, y, 3);
+//    				break;
+//    			case 'U':
+//    				int[] x2 = {i*BLOCK_SIZE-offsetX, (i+1)*BLOCK_SIZE-offsetX, (i+1)*BLOCK_SIZE-offsetX};
+//    				int[] y2 = {(j+1)*BLOCK_SIZE-offsetY-BLOCK_SIZE/2, (j+1)*BLOCK_SIZE-offsetY-BLOCK_SIZE/2, j*BLOCK_SIZE-offsetY};
+//    				g.fillPolygon(x2, y2, 3);
+//    				g.fillRect(i*BLOCK_SIZE-offsetX, j*BLOCK_SIZE+BLOCK_SIZE/2-offsetY, BLOCK_SIZE, BLOCK_SIZE/2);
+//    				break;
+//    			case 's':
+//    				int[] xs = {i*BLOCK_SIZE-offsetX, (i+1)*BLOCK_SIZE-offsetX, (i)*BLOCK_SIZE-offsetX};
+//    				int[] ys = {(j+1)*BLOCK_SIZE-offsetY, (j+1)*BLOCK_SIZE-offsetY, j*BLOCK_SIZE+BLOCK_SIZE/2-offsetY};
+//    				g.fillPolygon(xs, ys, 3);
+//    				break;
+//    			case 'S':
+//    				int[] xs2 = {i*BLOCK_SIZE-offsetX, (i+1)*BLOCK_SIZE-offsetX, (i)*BLOCK_SIZE-offsetX};
+//    				int[] ys2 = {(j+1)*BLOCK_SIZE-offsetY-BLOCK_SIZE/2, (j+1)*BLOCK_SIZE-offsetY-BLOCK_SIZE/2, j*BLOCK_SIZE-offsetY};
+//    				g.fillPolygon(xs2, ys2, 3);
+//    				g.fillRect(i*BLOCK_SIZE-offsetX, j*BLOCK_SIZE+BLOCK_SIZE/2-offsetY, BLOCK_SIZE, BLOCK_SIZE/2);
+//    				break;
     			case 'D':
     				g.setColor(Color.BLUE);
     				g.drawRect(i*BLOCK_SIZE-offsetX, j*BLOCK_SIZE-offsetY, BLOCK_SIZE-1, BLOCK_SIZE-1);

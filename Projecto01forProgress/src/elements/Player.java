@@ -7,8 +7,9 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import scene.Map;
+
 import main.KeyWords;
-import main.Map;
 
 public class Player extends ActiveElement{
 //	protected Bullet blt = null;
@@ -80,7 +81,7 @@ public class Player extends ActiveElement{
 	}
 	
 	public void clearAttackCols(){
-		attackCols.clear();
+		if(attackCols != null)attackCols.clear();
 	}
 	
 	public boolean landed(){

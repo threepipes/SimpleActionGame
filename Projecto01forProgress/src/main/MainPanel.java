@@ -5,12 +5,19 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JPanel;
+
+import scene.Map;
+import scene.MessageController;
+import scene.MessageWindow;
 
 import elements.Event;
 import elements.MapEvent;
 import elements.Player;
+import elements.TalkEvent;
 
 public class MainPanel extends JPanel implements KeyListener, Runnable{
 	private static final boolean DEBUG = true;
@@ -35,6 +42,11 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 	public static final int MAP_NUM = 3;
 	private int mapNo = 0;
 	private Map[] stage = new Map[MAP_NUM];	
+	private MessageWindow messageW;
+	private MessageController messageC;
+	private List<String[]> talkList;
+
+	private boolean talking;
 	
 	public MainPanel() {
 		setPreferredSize(new Dimension(Width, Height));
@@ -48,6 +60,9 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 		Thread anime = new Thread(this);
 		anime.start();
 		player.loadImage("hito.png");
+		
+		messageW = new MessageWindow(20, Height-200, Width-40, 180, "gamefont.png");
+		messageC = new MessageController(messageW, "face.png");
 	}
 	
 
@@ -66,7 +81,10 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 	
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
+		
 		stage[mapNo].draw(g, offsetX, offsetY);
+		
+		messageC.draw(g, player.getY() < 600);
 		
 		if(DEBUG){
 			g.setColor(Color.BLACK);
@@ -78,15 +96,18 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 	}
 	
 	public void update(){
-		setOffset();
-		doKeyEvent();
-		stage[mapNo].update();
-		
+		if(!talking){
+			setOffset();
+			doKeyEvent();
+			stage[mapNo].update();
+		}else{
+			doKeyEventMessage();
+		}
 	}
 	
 	private void checkEvent(){
 		//TODO
-		Event e = stage[mapNo].checkEvent(player.getX(), player.getY());
+		Event e = stage[mapNo].checkEvent();
 		if(e != null){
 			if(e instanceof MapEvent){
 				MapEvent me = (MapEvent)e;
@@ -98,7 +119,17 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 					mapNo = me.toMap;
 					stage[mapNo].init("map0"+mapNo+".dat","map_event0"+mapNo+".evt", player
 							, me.toX*Map.BLOCK_SIZE, me.toY*Map.BLOCK_SIZE);
+				}else{
+					player.moveTo(me.toX*Map.BLOCK_SIZE, me.toY*Map.BLOCK_SIZE);
 				}
+			}else if(e instanceof TalkEvent){
+				TalkEvent te = (TalkEvent) e;
+				
+				player.action(KeyWords.STAND);
+				talkList = te.getTalk();
+				
+				messageC.setTalkList(talkList);
+				talking = true;
 			}
 		}
 	}
@@ -138,6 +169,14 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 			player.motionRequest(KeyWords.JUMP);
 		if((keymask & KEY_DOWN) > 0){
 			player.action(KeyWords.SIT);
+		}
+	}
+	
+	public void doKeyEventMessage(){
+		if((keymask & KEY_ATTACK) > 0 && (~actmask & KEY_ATTACK) > 0){
+			messageC.nextTalk();
+			actmask |= KEY_ATTACK;
+			talking = messageW.isVisible();
 		}
 	}
 	
