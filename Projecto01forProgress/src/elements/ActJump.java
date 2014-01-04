@@ -12,7 +12,7 @@ public class ActJump extends Action{
 	@Override
 	public void action() {
 
-		if(parent.onGround){
+		if(parent.isGround()){
 			parent.vy = -24;
 		}
 		

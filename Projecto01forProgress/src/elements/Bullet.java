@@ -18,7 +18,7 @@ public class Bullet extends AttackCollision{
 
 	public void draw(Graphics g, int offsetX, int offsetY){
 		super.checkOnWindow(offsetX, offsetY);
-		if(onWindow && !hit && (null == stage.checkHitBlock((int)x, (int)y, sizex, sizey, vy)))
+		if(onWindow && !hit && (null == stage.checkHitBlock((int)x, (int)y, sizex, sizey)) && (null == stage.checkHitSlopeForB((int)x, (int)y, sizex, sizey, (int)vx, false)))
 			g.fillOval((int)x-offsetX, (int)y-offsetY, sizex, sizey);
 		else isAlive = false;
 	}

@@ -139,7 +139,7 @@ public class Player extends ActiveElement{
 				System.err.println("iact:"+iact+"; icount:"+icount);
 			}
 			if(DEBUG){
-				g.drawString("land:"+land+"; iact:"+iact+"; icount:"+icount, 40, 80);
+				g.drawString("onGround:"+onGround+"; iact:"+iact+"; icount:"+icount, 40, 80);
 				g.drawString("vx:"+vx+"; vy:"+vy+"; ax:"+ax+"; ay:"+ay, 40, 100);
 			}
 			

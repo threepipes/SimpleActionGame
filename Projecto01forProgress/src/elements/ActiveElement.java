@@ -96,10 +96,11 @@ public abstract class ActiveElement extends Element{
 		
 		double newX = x + vx;
 		double newY = y + vy;
-		
-		// check x only
-		Point p = stage.checkHitBlock((int)newX, (int)y, sizex, sizey, vy);
-		if(p == null){
+
+		boolean oldGround = onGround;
+		// check y after x
+		Point p = stage.checkHitBlock((int)newX, (int)y, sizex, sizey);
+		if(p == null || stage.checkHitO((int)newX, (int)y, sizex, sizey)){
 			x = newX;
 //			if(vx > 0) dx = 1;
 //			else if(vx < 0) dx = -1;
@@ -107,14 +108,12 @@ public abstract class ActiveElement extends Element{
 		else{
 			if(vx >= 0){
 				x = p.x - sizex;
-				vx = 0;
 			}else{
 				x = p.x+Map.BLOCK_SIZE;
-				vx = 0;
 			}
+			vx = 0;
 		}
-		// check y after x
-		p = stage.checkHitBlock((int)x, (int)newY, sizex, sizey, vy);
+		p = stage.checkHitBlock((int)x, (int)newY, sizex, sizey);
 		if(p == null){
 			y = newY;
 			onGround = false;
@@ -129,11 +128,20 @@ public abstract class ActiveElement extends Element{
 				vy = 0;
 			}
 		}
+		// check x only
+		
 		if(attackCols != null){
 			Iterator<AttackCollision> it = attackCols.iterator();
 			while(it.hasNext()){
 				it.next().move();
 			}
+		}
+		if((p=stage.checkHitSlope((int)newX, (int)y, sizex, sizey, (int)vx, oldGround)) != null && oldVY > 0){
+//			if(p.x > 0)
+			if(vx != 0)x = p.x;
+			y = p.y;
+			vy = 0;
+			onGround = true;
 		}
 		
 	}

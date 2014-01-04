@@ -9,13 +9,17 @@ import scene.Map;
 
 public class TalkEvent extends Event{
 	private List<String[]> talkList;
-	public TalkEvent(int x, int y, int sx, int sy, List<String[]> talkList, Map stage) {
-		super(x, y, sx, sy, stage);
+	public TalkEvent(int x, int y, int sx, int sy, List<String[]> talkList, Map stage, boolean deleteOne) {
+		super(x, y, sx, sy, stage, deleteOne);
 		this.talkList = talkList;
 	}
 	
 	public List<String[]> getTalk(){
 		return talkList;
+	}
+	
+	public boolean getDelete(){
+		return deleteOne;
 	}
 	
 	public void draw(Graphics g, int offsetX, int offsetY){

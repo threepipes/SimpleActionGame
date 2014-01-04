@@ -43,6 +43,7 @@ public class MessageWindow {
 	// 会話やメッセージが始まる前（イベント発生直後）に一回だけ(?)呼ばれ，メッセージをセットする
 	public void setTalk(String message){
 		messages.delete(0, messages.length());
+		line = 0;
 		for(int i=0; i<lineNum; i++) writeMes[i].delete(0, writeMes[i].length());
 		messages.append(message);
 		next = false;

@@ -20,7 +20,7 @@ public class ActGun extends Action{
 			parent.attackCols = new ArrayList<AttackCollision>();
 		}
 		if(parent.attackCols.size() < maxnum)
-			parent.attackCols.add(new Bullet(parent.x+parent.sizex/2, parent.y+parent.sizey/2, 6, 3, parent.dx, 0, parent.stage));
+			parent.attackCols.add(new Bullet(parent.x+parent.sizex/2, parent.y+parent.sizey/2-5, 6, 3, parent.dx, 0, parent.stage));
 		
 	}
 }
