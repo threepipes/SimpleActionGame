@@ -11,8 +11,8 @@ public class Element {
 	protected double y;
 	protected double vx = 0;
 	protected double vy = 0;
-	protected double ax = 0;
-	protected double ay = 0;
+	protected final double ax = 0;
+	protected final double ay = 0;
 	protected int sizex;
 	protected int sizey;
 	protected int colx;
@@ -47,7 +47,7 @@ public class Element {
 	}
 	
 	public void checkOnWindow(int offsetX, int offsetY){
-		// 200�̉�ʊO�P�\
+		// 200の画面外猶予
 		if((y+vy <= -200-sizey+offsetY || y+vy >= 800+sizey+offsetY)
 				|| (x+vx <= -200-sizex+offsetX || x+vx >= 1000+sizex+offsetX))
 			onWindow = false;

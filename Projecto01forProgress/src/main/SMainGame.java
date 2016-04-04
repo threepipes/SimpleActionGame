@@ -1,6 +1,7 @@
 package main;
 
 import java.awt.Graphics;
+import java.awt.Point;
 import java.util.List;
 
 import scene.Map;
@@ -15,6 +16,11 @@ public class SMainGame extends Scene{
 	
 	private int offsetX = 0;
 	private int offsetY = 0;	
+	private int offsetXbg = 0;
+	private int offsetYbg = 0;	
+	private int bgX = 0;
+	private int bgY = 0;
+	
 	private boolean talking;
 
 	private Player player;
@@ -28,27 +34,37 @@ public class SMainGame extends Scene{
 	
 	public SMainGame() {
 		for(int i=0; i<MAP_NUM; i++)stage[i] = new Map();
-		player = new Player(40, 1700, stage[mapNo]);
-		stage[mapNo].init("map0"+mapNo+".dat","map_event0"+mapNo+".evt", player, 40, 1700);
+		player = new Player(100, 1500, stage[mapNo]);
+		stage[mapNo].init("map0"+mapNo+".map","map_event0"+mapNo+".evt", player, 100, 1500);
 		
 		player.loadImage("hito.png");
 		
 		messageW = new MessageWindow(20, MainPanel.Height-200, MainPanel.Width-40, 180, "gamefont.png");
 		messageC = new MessageController(messageW, "face.png");
+		Point bgs = stage[mapNo].getBGSize();
+		bgX = bgs.x;
+		bgY = bgs.y;
 	}
 	
 
 	private void setOffset(){
 		offsetX = (int) (player.getX() - MainPanel.Width/2);
 		if(offsetX < 0) offsetX = 0;
-		else if(offsetX > stage[mapNo].getSizeTile().x*Map.BLOCK_SIZE - MainPanel.Width)
-			offsetX = stage[mapNo].getSizeTile().x*Map.BLOCK_SIZE - MainPanel.Width;
+		else if(offsetX > stage[mapNo].getSizeTile().x*Map.BLOCK_SIZE - MainPanel.Width - 12)
+			offsetX = stage[mapNo].getSizeTile().x*Map.BLOCK_SIZE - MainPanel.Width - 12;
 		if(stage[mapNo].getSizeTile().x*Map.BLOCK_SIZE < MainPanel.Width) offsetX = 0; 
 		offsetY = (int) (player.getY() - MainPanel.Height/2);
 		if(offsetY < 0) offsetY = 0;
-		else if(offsetY > stage[mapNo].getSizeTile().y*Map.BLOCK_SIZE - MainPanel.Height)
-			offsetY = stage[mapNo].getSizeTile().y*Map.BLOCK_SIZE - MainPanel.Height;
+		else if(offsetY > stage[mapNo].getSizeTile().y*Map.BLOCK_SIZE - MainPanel.Height - 12)
+			offsetY = stage[mapNo].getSizeTile().y*Map.BLOCK_SIZE - MainPanel.Height - 12;
 		if(stage[mapNo].getSizeTile().x*Map.BLOCK_SIZE < MainPanel.Width) offsetX = 0; 
+	}
+	
+	private void setOffsetBG(){
+		int offsetMaxX = stage[mapNo].getSizeTile().x*Map.BLOCK_SIZE - MainPanel.Width - 12;
+		int offsetMaxY = stage[mapNo].getSizeTile().y*Map.BLOCK_SIZE - MainPanel.Height - 12;
+		offsetXbg = -offsetX*(bgX-MainPanel.Width)/offsetMaxX;
+		offsetYbg = -offsetY*(bgY-MainPanel.Height)/offsetMaxY;
 	}
 	
 	private void checkEvent(){
@@ -59,12 +75,15 @@ public class SMainGame extends Scene{
 				MapEvent me = (MapEvent)e;
 				
 				if(mapNo != me.toMap){
-					// player‚ª•Ç‚Ì’†‚És‚­ŠëŒ¯‚ª‚ ‚é(—vF–³“Gˆ—)
+					// playerãŒå£ã®ä¸­ã«è¡Œãå±é™ºãŒã‚ã‚‹(è¦ï¼šç„¡æ•µå‡¦ç†)
 					player.clearAttackCols();
 					stage[mapNo].destMap();
 					mapNo = me.toMap;
 					stage[mapNo].init("map0"+mapNo+".dat","map_event0"+mapNo+".evt", player
 							, me.toX*Map.BLOCK_SIZE, me.toY*Map.BLOCK_SIZE);
+					Point bgs = stage[mapNo].getBGSize();
+					bgX = bgs.x;
+					bgY = bgs.y;
 				}else{
 					player.moveTo(me.toX*Map.BLOCK_SIZE, me.toY*Map.BLOCK_SIZE);
 				}
@@ -85,6 +104,7 @@ public class SMainGame extends Scene{
 
 		if(!talking){
 			setOffset();
+			setOffsetBG();
 			stage[mapNo].update();
 		}
 		
@@ -130,11 +150,11 @@ public class SMainGame extends Scene{
 			player.action(KeyWords.STAND);
 			if(player.getVX() != 0) player.motionRequest(KeyWords.WALK);
 		}
-		// player ‚ªattack ‚Ì‚İ‚È‚ç‚ÎCplayer ‚Í stand
+		// player ãŒattack ã®ã¿ãªã‚‰ã°ï¼Œplayer ã¯ stand
 
 		if(player.landed()){
 			player.action(KeyWords.LAND);
-		}else if(!player.isGround() && player.getVY() >= 0) 
+		}else if(!player.isGround() && player.getVY() >= 4) 
 			player.motionRequest(KeyWords.JUMP);
 		if((keymask & KEY_DOWN) > 0){
 			player.action(KeyWords.SIT);
@@ -144,8 +164,8 @@ public class SMainGame extends Scene{
 	
 	@Override
 	public void draw(Graphics g) {
-		// TODO ©“®¶¬‚³‚ê‚½ƒƒ\ƒbƒhEƒXƒ^ƒu
-		stage[mapNo].draw(g, offsetX, offsetY);
+		// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸãƒ¡ã‚½ãƒƒãƒ‰ãƒ»ã‚¹ã‚¿ãƒ–
+		stage[mapNo].draw(g, offsetX, offsetY, offsetXbg, offsetYbg);
 		
 		messageC.draw(g, player.getY() < 600);
 		

@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -40,7 +39,7 @@ public class MessageWindow {
 			writeMes[i] = new StringBuilder();
 	}
 	
-	// ‰ï˜b‚âƒƒbƒZ[ƒW‚ªn‚Ü‚é‘OiƒCƒxƒ“ƒg”­¶’¼Œãj‚Éˆê‰ñ‚¾‚¯(?)ŒÄ‚Î‚êCƒƒbƒZ[ƒW‚ğƒZƒbƒg‚·‚é
+	// ä¼šè©±ã‚„ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ãŒå§‹ã¾ã‚‹å‰ï¼ˆã‚¤ãƒ™ãƒ³ãƒˆç™ºç”Ÿç›´å¾Œï¼‰ã«ä¸€å›ã ã‘(?)å‘¼ã°ã‚Œï¼Œãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ã‚»ãƒƒãƒˆã™ã‚‹
 	public void setTalk(String message){
 		messages.delete(0, messages.length());
 		line = 0;
@@ -56,7 +55,7 @@ public class MessageWindow {
 		isVisible = true;
 	}
 	
-	// ƒ^ƒCƒ}[ƒ^ƒXƒN‚É‚æ‚è’èŠú“I‚ÉŒÄ‚Î‚êC•\¦‚·‚é•¶š‚ğˆê‚Âi‚ß‚é
+	// ã‚¿ã‚¤ãƒãƒ¼ã‚¿ã‚¹ã‚¯ã«ã‚ˆã‚Šå®šæœŸçš„ã«å‘¼ã°ã‚Œï¼Œè¡¨ç¤ºã™ã‚‹æ–‡å­—ã‚’ä¸€ã¤é€²ã‚ã‚‹
 	public void setCursor(){
 		if(messages.toString() == null || messages.length() == 0){
 			fin = true;
@@ -86,21 +85,21 @@ public class MessageWindow {
 		
 	}
 	
-	// ŠO•”‚Åƒ{ƒ^ƒ“‚ª‰Ÿ‚³‚ê‚½‚Æ‚«‚ÉŒÄ‚Î‚êCŸ‚Ìƒy[ƒW‚ÉˆÚ‚é
-	// ‰ï˜bƒCƒxƒ“ƒg‚ªI—¹‚µ‚Ä‚¢‚ê‚ÎCƒƒbƒZ[ƒW‚ğÁ‚µ‚ÄƒEƒBƒ“ƒhƒE‚ğ•Â‚¶‚é
+	// å¤–éƒ¨ã§ãƒœã‚¿ãƒ³ãŒæŠ¼ã•ã‚ŒãŸã¨ãã«å‘¼ã°ã‚Œï¼Œæ¬¡ã®ãƒšãƒ¼ã‚¸ã«ç§»ã‚‹
+	// ä¼šè©±ã‚¤ãƒ™ãƒ³ãƒˆãŒçµ‚äº†ã—ã¦ã„ã‚Œã°ï¼Œãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’æ¶ˆã—ã¦ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’é–‰ã˜ã‚‹
 	public void nextPage(){
 		if(fin){
 			for(int i=0; i<lineNum; i++){
 				writeMes[i].delete(0, writeMes[i].length());
 			}
-			// ‚±‚Ì•Ó‚è‚ÅCƒEƒBƒ“ƒhƒE‚ğ‚¾‚ñ‚¾‚ñÁ‚µ‚Ä‚¢‚­ƒAƒjƒ[ƒVƒ‡ƒ“‚ğÀ‘•‚µ‚½‚¢iƒ^ƒCƒ}[ƒ^ƒXƒNj
+			// ã“ã®è¾ºã‚Šã§ï¼Œã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚’ã ã‚“ã ã‚“æ¶ˆã—ã¦ã„ãã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’å®Ÿè£…ã—ãŸã„ï¼ˆã‚¿ã‚¤ãƒãƒ¼ã‚¿ã‚¹ã‚¯ï¼‰
 		}else if(next){
 			next = false;
 			for(int i=0; i<lineNum; i++){
 				writeMes[i].delete(0, writeMes[i].length());
 			}
 			line = 0;
-			// ˜b‚·ƒLƒƒƒ‰‚ª•Ï‚í‚éê‡‚È‚Ç‚ÍC‚±‚±‚Åˆ—‚ğs‚¤—\’è
+			// è©±ã™ã‚­ãƒ£ãƒ©ãŒå¤‰ã‚ã‚‹å ´åˆãªã©ã¯ï¼Œã“ã“ã§å‡¦ç†ã‚’è¡Œã†äºˆå®š
 		}else if(!next){
 			while(!next && !fin){
 				setCursor();

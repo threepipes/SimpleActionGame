@@ -73,7 +73,7 @@ public class Actions {
 	public void doAction(){
 		if(reserve != null){
 			reserve.action();
-		}// ‰½‚àƒAƒNƒVƒ‡ƒ“‚ª‚È‚¢ê‡‚Í‚Ç‚¤‚·‚éH
+		}// ä½•ã‚‚ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ãŒãªã„å ´åˆã¯ã©ã†ã™ã‚‹ï¼Ÿ
 		if(reserve instanceof ActionContinue){
 			conFin = false;
 		}

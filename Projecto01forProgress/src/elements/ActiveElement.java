@@ -18,6 +18,8 @@ public abstract class ActiveElement extends Element{
 	protected double maxspeed = 3;
 	protected int dx = 1;
 	protected int dy = 0;
+	protected final double ax = 0.5;
+	protected final double ay = 3;
 	protected int life;
 	
 	protected double oldVY;
@@ -37,8 +39,6 @@ public abstract class ActiveElement extends Element{
 	
 	public ActiveElement(double x, double y, int sizex, int sizey, Map stage) {
 		super(x, y, sizex, sizey, stage);
-		ax = 0.5;
-		ay = 3;
 	}
 	
 	public void loadImage(String filename){

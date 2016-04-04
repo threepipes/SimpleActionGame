@@ -8,7 +8,7 @@ import java.awt.event.KeyListener;
 import javax.swing.JPanel;
 
 public class MainPanel extends JPanel implements KeyListener, Runnable{
-	private static final boolean DEBUG = true;
+//	private static final boolean DEBUG = true;
 	
 	public static final int Width = 800;
 	public static final int Height = 600;
@@ -29,7 +29,7 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 		addKeyListener(this);
 		nowScene = new SMainGame();
 		
-		// Thread�̊J�n�͈�ԍŌ�
+		// Threadの開始は一番最後
 		Thread anime = new Thread(this);
 		anime.start();
 	}

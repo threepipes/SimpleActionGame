@@ -16,29 +16,28 @@ public class Enemy extends ActiveElement{
 	protected static final int Size = 24;
 	protected static Random rand = new Random();
 	protected AttackCollision defaultAC;
+	protected final double ay = 1;
 	public Enemy(double x, double y, Map stage) {
 		super(x, y, Size, Size, stage);
 		name = KeyWords.ENEMY;
 		if(rand.nextInt(2) == 0) dx = -1;
 		maxspeed = 3;
-		ay = 1;
 		attackCols = new ArrayList<AttackCollision>();
 		defaultAC = new AttackCollision(x,y,sizex,sizey, stage);
 		attackCols.add(defaultAC);
 		loadAction();
-		// TODO ©“®¶¬‚³‚ê‚½ƒRƒ“ƒXƒgƒ‰ƒNƒ^[EƒXƒ^ƒu
+		// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ãƒ¼ãƒ»ã‚¹ã‚¿ãƒ–
 	}
 	
 	public Enemy(double x, double y, Map stage, int dx) {
 		super(x, y, Size, Size, stage);
 		this.dx = dx;
 		maxspeed = 3;
-		ay = 1;
 		attackCols = new ArrayList<AttackCollision>();
 		defaultAC = new AttackCollision(x,y,sizex,sizey, stage);
 		attackCols.add(defaultAC);
 		loadAction();
-		// TODO ©“®¶¬‚³‚ê‚½ƒRƒ“ƒXƒgƒ‰ƒNƒ^[EƒXƒ^ƒu
+		// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ãƒ¼ãƒ»ã‚¹ã‚¿ãƒ–
 	}
 	
 	public void loadAction(){
@@ -54,7 +53,7 @@ public class Enemy extends ActiveElement{
 	
 	@Override
 	public void draw(Graphics g, int offsetX, int offsetY) {
-		// TODO ©“®¶¬‚³‚ê‚½ƒƒ\ƒbƒhEƒXƒ^ƒu
+		// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸãƒ¡ã‚½ãƒƒãƒ‰ãƒ»ã‚¹ã‚¿ãƒ–
 		actions.doAction();
 		g.setColor(Color.RED);
 		if(isAlive)g.drawRect((int)x-offsetX, (int)y-offsetY, Size-1, Size-1);

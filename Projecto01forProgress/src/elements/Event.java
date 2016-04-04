@@ -7,7 +7,7 @@ import scene.Map;
 
 public abstract class Event extends ActiveElement{
 	
-	// ƒ^ƒCƒ‹À•W
+	// ã‚¿ã‚¤ãƒ«åº§æ¨™
 	protected boolean deleteOne;
 	public Event(int eventX, int eventY, int sizeX, int sizeY, Map stage, boolean deleteOne){
 		super(eventX*Map.BLOCK_SIZE, eventY*Map.BLOCK_SIZE, sizeX*Map.BLOCK_SIZE, sizeY*Map.BLOCK_SIZE, stage);

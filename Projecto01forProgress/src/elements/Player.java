@@ -88,7 +88,7 @@ public class Player extends ActiveElement{
 		if(!oldflag && onGround && oldVY >= 30) return true;
 		oldflag = onGround;
 		return false;
-	}// 1ƒ‹[ƒv‚Å1‰ñ‚µ‚©ŒÄ‚Ño‚µ‚Ä‚Í‚¢‚¯‚È‚¢
+	}// 1ãƒ«ãƒ¼ãƒ—ã§1å›ã—ã‹å‘¼ã³å‡ºã—ã¦ã¯ã„ã‘ãªã„
 	
 	
 	public void move(){
@@ -120,7 +120,7 @@ public class Player extends ActiveElement{
 	
 	public void draw(Graphics g, int offsetX, int offsetY){
 
-		// ‚µ‚á‚ª‚ñ‚Å¬‚³‚­‚È‚Á‚½ƒTƒCƒY‚ğ–ß‚·
+		// ã—ã‚ƒãŒã‚“ã§å°ã•ããªã£ãŸã‚µã‚¤ã‚ºã‚’æˆ»ã™
 		coly = 0;
 		colys = 24;
 		actions.doAction();

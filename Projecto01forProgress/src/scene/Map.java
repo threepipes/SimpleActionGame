@@ -1,6 +1,5 @@
 package scene;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
@@ -15,7 +14,6 @@ import java.util.StringTokenizer;
 
 import javax.swing.ImageIcon;
 
-import main.KeyWords;
 import main.MainPanel;
 import elements.Enemy;
 import elements.Event;
@@ -24,13 +22,18 @@ import elements.Player;
 import elements.TalkEvent;
 
 public class Map {
-	protected char[][] map;
+	protected int[][] map;
+	protected int[][] mapF;
     protected int mapSizeX;
     protected int mapSizeY;
     protected int offsetX;
     protected int offsetY;
     protected static Image mapImage;
-    protected static HashMap<Character, Point> chipMap = new HashMap<Character, Point>();
+    protected static Image backGroundImage;
+    protected static int bgX;
+    protected static int bgY;
+    
+    protected static HashMap<Integer, Integer> chipMap = new HashMap<Integer, Integer>();
     
     protected int enemyID = 0;
     
@@ -39,79 +42,60 @@ public class Map {
     
     protected List<Event> eventList = new ArrayList<Event>();
     public static final int BLOCK_SIZE = 32;
-	private static final int SourceSizeX = 10;
-	private static final int SourceSizeY = 10;
+	protected static final int SourceSizeX = 10;
+	protected static final int SourceSizeY = 10;
     
     public Map(){
     }
     
     public void init(String mapName, String eventName, Player player, int toX, int toY){
-    	loadMap(mapName);
+    	int[][][] tmp = UseFile.readFile(mapName);
+    	map = tmp[0];
+    	mapF = tmp[1];
+    	mapSizeX = map[0].length;
+    	mapSizeY = map.length;
     	loadEvent(eventName);
     	this.player = player;
     	player.changeMap(this);
     	player.moveTo(toX, toY);
     	if(mapImage == null){
     		createCmap();
-    		loadImage("MapChip.png");
+    		loadImage("MapChip.png", "background.png");
+    		bgX = backGroundImage.getWidth(null);
+    		bgY = backGroundImage.getHeight(null);
     	}
     }
-
-	public void loadImage(String filename){
+	public void loadImage(String filename, String filenameBG){
 		ImageIcon icon = new ImageIcon(getClass().getResource("/"+filename));
 		mapImage = icon.getImage();
-		
+
+		icon = new ImageIcon(getClass().getResource("/"+filenameBG));
+		backGroundImage = icon.getImage();
+	}
+	
+	public Point getBGSize(){
+		return new Point(bgX, bgY);
 	}
 	
 	public void createCmap(){
-		chipMap.put('1', new Point(0, 0));
-		chipMap.put('2', new Point(32, 0));
-		chipMap.put('3', new Point(64, 0));
-		chipMap.put('4', new Point(0, 32));
-		chipMap.put('5', new Point(32, 32));
-		chipMap.put('6', new Point(64, 32));
-		chipMap.put('7', new Point(0, 64));
-		chipMap.put('8', new Point(32, 64));
-		chipMap.put('9', new Point(64, 64));
-		
-		chipMap.put('a', new Point(128,0));
-		chipMap.put('b', new Point(128+32,0));
-		chipMap.put('c', new Point(128+64,0));
-		chipMap.put('d', new Point(128,32));
-		chipMap.put('e', new Point(128+32,32));
-		chipMap.put('f', new Point(128+64,32));
-		chipMap.put('g', new Point(128,64));
-		chipMap.put('h', new Point(128+32,64));
-		chipMap.put('i', new Point(128+64,64));
+		for(int i=0; i<SourceSizeX*SourceSizeY; i++) chipMap.put(i, -1);
+		chipMap.put(-1,0);// 0:å½“ãŸã‚Šåˆ¤å®šãªã—
+		chipMap.put(0, 0);
+		chipMap.put(1, 0);
+		chipMap.put(2, 0);
+		chipMap.put(12, 0);
+		chipMap.put(22, 0);
+		chipMap.put(7, 1);// 1:å³ä¸ŠãŒã‚Šå‚å°
+		chipMap.put(8, 2);// 2:å³ä¸ŠãŒã‚Šå‚å¤§
+		chipMap.put(5, 3);// 3:å‚ä¸‹ç”¨å°
+		chipMap.put(27, 3);
+		chipMap.put(28, 3);
+		chipMap.put(17, 4);// 4:å³ä¸‹ãŒã‚Šå‚å¤§
+		chipMap.put(18, 5);// 5:å³ä¸‹ãŒã‚Šå‚å°
 	}
     
     public void setPlayer(Player player){
     	this.player = player;
-    }
-    
-    public void loadMap(String filename){
-    	BufferedReader reader = new BufferedReader(new InputStreamReader(
-    			getClass().getResourceAsStream("/"+filename)));
-    	
-    	try {
-			mapSizeX = Integer.parseInt(reader.readLine());
-			mapSizeY = Integer.parseInt(reader.readLine());
-			map = new char[mapSizeY][mapSizeX];
-			
-			for(int i=0; i<mapSizeY; i++){
-				StringBuilder line = new StringBuilder(reader.readLine());
-				for(int j=0; j<mapSizeX; j++){
-					map[i][j] = line.charAt(j);
-				}
-			}
-			
-		} catch (NumberFormatException e) {
-			// TODO Ž©“®¶¬‚³‚ê‚½ catch ƒuƒƒbƒN
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Ž©“®¶¬‚³‚ê‚½ catch ƒuƒƒbƒN
-			e.printStackTrace();
-		}
     }
     
     public void loadEvent(String filename){
@@ -165,10 +149,10 @@ public class Map {
 			}
 			
 		} catch (NumberFormatException e) {
-			// TODO Ž©“®¶¬‚³‚ê‚½ catch ƒuƒƒbƒN
+			// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸ catch ãƒ–ãƒ­ãƒƒã‚¯
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Ž©“®¶¬‚³‚ê‚½ catch ƒuƒƒbƒN
+			// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸ catch ãƒ–ãƒ­ãƒƒã‚¯
 			e.printStackTrace();
 		}
     }
@@ -212,7 +196,7 @@ public class Map {
     		System.err.println("mapover:"+mappointX1+":"+mappointX2+":"+mappointY1+":"+mappointY2);
     		return false;
     	}
-    	if(map[mappointY2][mappointX2] == 'O' || map[mappointY2][mappointX1] == 'O')
+    	if(chipMap.get(map[mappointY2][mappointX2]) == 3 || chipMap.get(map[mappointY2][mappointX1]) == 3)
     		return true;
     	return false;
     }
@@ -229,9 +213,9 @@ public class Map {
     		System.err.println("mapover:"+mappointX1+":"+mappointX2+":"+mappointY1+":"+mappointY2);
     		return null;
     	}
-    	for(int i=mappointX1; i<=mappointX2; i++)
-    		for(int j=mappointY1; j<=mappointY2; j++){
-    			if("45B78Oabcdefghi".indexOf(map[j][i]) != -1) return new Point(i*BLOCK_SIZE,j*BLOCK_SIZE);
+    	for(int i=mappointY1; i<=mappointY2; i++)
+    		for(int j=mappointX1; j<=mappointX2; j++){
+    			if(chipMap.get(map[i][j]) == -1 || chipMap.get(map[i][j]) == 3) return new Point(j*BLOCK_SIZE,i*BLOCK_SIZE);
     		}
     	return null;
     }
@@ -249,39 +233,40 @@ public class Map {
         		System.err.println("mapover:"+mappointX1+":"+mappointX2+":"+mappointY1+":"+mappointY2);
         		return null;
     	}
-    	if((map[mappointY2][mappointX2] == 'u' || map[mappointY2][mappointX2] == 'U') 
+    	if((chipMap.get(map[mappointY2][mappointX2]) == 1 || chipMap.get(map[mappointY2][mappointX2]) == 2) 
     			/*&& ( onGround) /*&& (i==mappointX2 && j==mappointY2)*/){
-    		b = map[mappointY2][mappointX2] == 'u' ? (x+sizeX-1)%BLOCK_SIZE/2 : (x+sizeX-1)%BLOCK_SIZE/2+BLOCK_SIZE/2;
+    		b = chipMap.get(map[mappointY2][mappointX2]) == 1 ? (x+sizeX-1)%BLOCK_SIZE/2 : (x+sizeX-1)%BLOCK_SIZE/2+BLOCK_SIZE/2;
     		b -= BLOCK_SIZE - (y+sizeY-1)%BLOCK_SIZE;
     		//    				if(y+sizeY>(mappointY2+1)*BLOCK_SIZE) y = (mappointY2+1)*BLOCK_SIZE-sizeY;
     		if(!((y-b+sizeY-1)/BLOCK_SIZE == (y+sizeY-1)/BLOCK_SIZE && (b > 0 || onGround))){
     			return null;
     		}
-    	}else if(((map[mappointY2][mappointX1] == 'u' && (b=(y+sizeY-1)-mappointY2*BLOCK_SIZE-BLOCK_SIZE/2)>0)
-    			|| (map[mappointY2][mappointX1] == 'U' && (b=(y+sizeY-1)-mappointY2*BLOCK_SIZE)>=0) )
+    	}else if(((chipMap.get(map[mappointY2][mappointX1]) == 1 && (b=(y+sizeY-1)-mappointY2*BLOCK_SIZE-BLOCK_SIZE/2)>0)
+    			|| (chipMap.get(map[mappointY2][mappointX1]) == 2 && (b=(y+sizeY-1)-mappointY2*BLOCK_SIZE)>=0) )
     			/*&& ( onGround)*/){
-    		if(map[mappointY2-1][mappointX2] == 'u')
+    		if(chipMap.get(map[mappointY2-1][mappointX2]) == 1)
     			b=(x+sizeX-1)%BLOCK_SIZE/2 + (y+sizeY-1)%BLOCK_SIZE;
 //    		return new Point(x, y-b-1);
-    	}else if(map[(y+sizeY+4)/BLOCK_SIZE][mappointX2] == 'U'){
+    	}else if(chipMap.get(map[(y+sizeY+4)/BLOCK_SIZE][mappointX2]) == 2){
     		b = (x+sizeX-1)%BLOCK_SIZE/2+BLOCK_SIZE/2 - (2*BLOCK_SIZE - (y+sizeY-1)%BLOCK_SIZE);
 //    		return new Point(x, y-b-1);
-    		
-    	}else if((map[mappointY2][mappointX1] == 's' || map[mappointY2][mappointX1] == 'S') ){
-    		b = map[mappointY2][mappointX1] == 'S' ? (x)%BLOCK_SIZE/2 : (x)%BLOCK_SIZE/2+BLOCK_SIZE/2;
+    	}else if((chipMap.get(map[mappointY2][mappointX1]) == 5 || chipMap.get(map[mappointY2][mappointX1]) == 4) ){
+    		b = chipMap.get(map[mappointY2][mappointX1]) == 4 ? (x)%BLOCK_SIZE/2 : (x)%BLOCK_SIZE/2+BLOCK_SIZE/2;
     		b = (y+sizeY-1)%BLOCK_SIZE - b;
     		if(!((y-b+sizeY-1)/BLOCK_SIZE == (y+sizeY-1)/BLOCK_SIZE && (b > 0 || onGround))){
     			return null;
     		}
-    	}else if(((map[mappointY2][mappointX2] == 's' && (b=(y+sizeY-1)-mappointY2*BLOCK_SIZE-BLOCK_SIZE/2)>0)
-    			|| (map[mappointY2][mappointX2] == 'S' && (b=(y+sizeY-1)-mappointY2*BLOCK_SIZE)>=0))){
-    		if(map[mappointY2-1][mappointX1] == 's')
+    	}else if(((chipMap.get(map[mappointY2][mappointX2]) == 5 && (b=(y+sizeY-1)-mappointY2*BLOCK_SIZE-BLOCK_SIZE/2)>0)
+    			|| (chipMap.get(map[mappointY2][mappointX2]) == 4 && (b=(y+sizeY-1)-mappointY2*BLOCK_SIZE)>=0))){
+    		if(chipMap.get(map[mappointY2-1][mappointX1]) == 5)
     			b = (BLOCK_SIZE-(x)%BLOCK_SIZE)/2 + (y+sizeY-1)%BLOCK_SIZE;
 //    		return new Point(x, y-b-1);
-    	}else if(map[(y+sizeY+4)/BLOCK_SIZE][mappointX1] == 'S'){
+    	}else if(chipMap.get(map[(y+sizeY+4)/BLOCK_SIZE][mappointX1]) == 4){
     		b = - (x)%BLOCK_SIZE/2 + (y+sizeY-1)%BLOCK_SIZE - BLOCK_SIZE;
 //    		return new Point(x, y-b-1);
-    	}else return null;
+    	}else{
+    		return null;
+    	}
     	
 		return new Point(x, y-b-1);
     }
@@ -299,31 +284,31 @@ public class Map {
         		System.err.println("mapover:"+mappointX1+":"+mappointX2+":"+mappointY1+":"+mappointY2);
         		return null;
     	}
-    	if((map[mappointY2][mappointX2] == 'u' || map[mappointY2][mappointX2] == 'U') 
+    	if((chipMap.get(map[mappointY2][mappointX2]) == 1 || chipMap.get(map[mappointY2][mappointX2]) == 2) 
     			/*&& ( onGround) /*&& (i==mappointX2 && j==mappointY2)*/){
-    		b = map[mappointY2][mappointX2] == 'u' ? (x+sizeX-1)%BLOCK_SIZE/2 : (x+sizeX-1)%BLOCK_SIZE/2+BLOCK_SIZE/2;
+    		b = chipMap.get(map[mappointY2][mappointX2]) == 1 ? (x+sizeX-1)%BLOCK_SIZE/2 : (x+sizeX-1)%BLOCK_SIZE/2+BLOCK_SIZE/2;
     		b -= BLOCK_SIZE - (y+sizeY-1)%BLOCK_SIZE;
     		//    				if(y+sizeY>(mappointY2+1)*BLOCK_SIZE) y = (mappointY2+1)*BLOCK_SIZE-sizeY;
     		if(!((y-b+sizeY-1)/BLOCK_SIZE == (y+sizeY-1)/BLOCK_SIZE && (b > 0 || onGround))){
     			return null;
     		}
-    	}else if(((map[mappointY2][mappointX1] == 'u' && (b=(y+sizeY-1)-mappointY2*BLOCK_SIZE-BLOCK_SIZE/2)>0)
-    			|| (map[mappointY2][mappointX1] == 'U' && (b=(y+sizeY-1)-mappointY2*BLOCK_SIZE)>=0) )
+    	}else if(((chipMap.get(map[mappointY2][mappointX1]) == 1 && (b=(y+sizeY-1)-mappointY2*BLOCK_SIZE-BLOCK_SIZE/2)>0)
+    			|| (chipMap.get(map[mappointY2][mappointX1]) == 2 && (b=(y+sizeY-1)-mappointY2*BLOCK_SIZE)>=0) )
     			/*&& ( onGround)*/){
-    		if(map[mappointY2-1][mappointX2] == 'u')
+    		if(chipMap.get(map[mappointY2-1][mappointX2]) == 1)
     			b=(x+sizeX-1)%BLOCK_SIZE/2 + (y+sizeY-1)%BLOCK_SIZE;
 //    		return new Point(x, y-b-1);
     	
     		
-    	}else if((map[mappointY2][mappointX1] == 's' || map[mappointY2][mappointX1] == 'S') ){
-    		b = map[mappointY2][mappointX1] == 'S' ? (x)%BLOCK_SIZE/2 : (x)%BLOCK_SIZE/2+BLOCK_SIZE/2;
+    	}else if((chipMap.get(map[mappointY2][mappointX1]) == 5 || chipMap.get(map[mappointY2][mappointX1]) == 4) ){
+    		b = chipMap.get(map[mappointY2][mappointX1]) == 4 ? (x)%BLOCK_SIZE/2 : (x)%BLOCK_SIZE/2+BLOCK_SIZE/2;
     		b = (y+sizeY-1)%BLOCK_SIZE - b;
     		if(!((y-b+sizeY-1)/BLOCK_SIZE == (y+sizeY-1)/BLOCK_SIZE && (b > 0 || onGround))){
     			return null;
     		}
-    	}else if(((map[mappointY2][mappointX2] == 's' && (b=(y+sizeY-1)-mappointY2*BLOCK_SIZE-BLOCK_SIZE/2)>0)
-    			|| (map[mappointY2][mappointX2] == 'S' && (b=(y+sizeY-1)-mappointY2*BLOCK_SIZE)>=0))){
-    		if(map[mappointY2-1][mappointX1] == 's')
+    	}else if(((chipMap.get(map[mappointY2][mappointX2]) == 5 && (b=(y+sizeY-1)-mappointY2*BLOCK_SIZE-BLOCK_SIZE/2)>0)
+    			|| (chipMap.get(map[mappointY2][mappointX2]) == 4 && (b=(y+sizeY-1)-mappointY2*BLOCK_SIZE)>=0))){
+    		if(chipMap.get(map[mappointY2-1][mappointX1]) == 5)
     			b = (BLOCK_SIZE-(x)%BLOCK_SIZE)/2 + (y+sizeY-1)%BLOCK_SIZE;
 //    		return new Point(x, y-b-1);
     	}else return null;
@@ -343,7 +328,7 @@ public class Map {
     	return null;
     }
     
-    public void draw(Graphics g, int offsetX, int offsetY){
+    public void draw(Graphics g, int offsetX, int offsetY, int offsetXbg, int offsetYbg){
     	int tileFirstX = offsetX/BLOCK_SIZE;
     	int tileFirstY = offsetY/BLOCK_SIZE;
     	int tileLastX = tileFirstX + MainPanel.Width/BLOCK_SIZE + 2;
@@ -351,6 +336,20 @@ public class Map {
     	if(tileLastX > mapSizeX) tileLastX = mapSizeX;
     	if(tileLastY > mapSizeY) tileLastY = mapSizeY;
     	
+    	g.drawImage(backGroundImage, 0, 0, MainPanel.Width+12, MainPanel.Height+12,
+    			-offsetXbg, -offsetYbg, MainPanel.Width-offsetXbg+12, MainPanel.Height-offsetYbg+12, null);
+    	
+		// draw map
+		for(int i=0; i<mapSizeY; i++)
+			for(int j=0; j<mapSizeX; j++){
+				if(map[i][j] != -1){
+					int cx = map[i][j]%SourceSizeX;
+					int cy = map[i][j]/SourceSizeY;
+					g.drawImage(mapImage, j*BLOCK_SIZE-offsetX, i*BLOCK_SIZE-offsetY, (j+1)*BLOCK_SIZE-offsetX, (i+1)*BLOCK_SIZE-offsetY,
+						cx*BLOCK_SIZE, cy*BLOCK_SIZE, (cx+1)*BLOCK_SIZE, (cy+1)*BLOCK_SIZE, null);
+				}
+			}
+
     	// draw elements
 		Iterator<Event> ite = eventList.iterator();
 		while(ite.hasNext()){
@@ -360,68 +359,17 @@ public class Map {
 		while(it.hasNext()){
 			it.next().draw(g, offsetX, offsetY);
 		}
-//		player.draw(g, offsetX, offsetY);
 		
-		// draw map
-    	for(int i=tileFirstX; i<tileLastX; i++)
-    		for(int j=tileFirstY; j<tileLastY; j++){
-    			g.setColor(Color.ORANGE);
-    			if(chipMap.containsKey(map[j][i])){
-    				Point p = chipMap.get(map[j][i]);
-    				g.drawImage(mapImage, i*BLOCK_SIZE-offsetX, j*BLOCK_SIZE-offsetY, (i+1)*BLOCK_SIZE-offsetX, (j+1)*BLOCK_SIZE-offsetY,
-    						p.x, p.y, p.x+BLOCK_SIZE, p.y+BLOCK_SIZE, null);
-    			}else
-    			switch(map[j][i]){
-    			case 'E':
-    				enemyList.put(KeyWords.ENEMY+enemyID++,new Enemy(i*BLOCK_SIZE, j*BLOCK_SIZE, this));
-    				map[j][i] = 0;
-    				break;
-    			case 'R':
-    				enemyList.put(KeyWords.ENEMY+enemyID++,new Enemy(i*BLOCK_SIZE, j*BLOCK_SIZE, this, 1));
-    				map[j][i] = 0;
-    				break;
-    			case 'L':
-    				enemyList.put(KeyWords.ENEMY+enemyID++,new Enemy(i*BLOCK_SIZE, j*BLOCK_SIZE, this, -1));
-    				map[j][i] = 0;
-    				break;
-    			case 'B':
-    				g.drawImage(mapImage, i*BLOCK_SIZE-offsetX, j*BLOCK_SIZE-offsetY, (i+1)*BLOCK_SIZE-offsetX, (j+1)*BLOCK_SIZE-offsetY,
-    						97, 0, 128, 32, null);
-//    				g.fillRect(i*BLOCK_SIZE-offsetX, j*BLOCK_SIZE-offsetY, BLOCK_SIZE, BLOCK_SIZE);
-    				break;
-    			case 'u':
-    				int[] x = {i*BLOCK_SIZE-offsetX, (i+1)*BLOCK_SIZE-offsetX, (i+1)*BLOCK_SIZE-offsetX};
-    				int[] y = {(j+1)*BLOCK_SIZE-offsetY, (j+1)*BLOCK_SIZE-offsetY, j*BLOCK_SIZE+BLOCK_SIZE/2-offsetY};
-    				g.fillPolygon(x, y, 3);
-    				break;
-    			case 'U':
-    				int[] x2 = {i*BLOCK_SIZE-offsetX, (i+1)*BLOCK_SIZE-offsetX, (i+1)*BLOCK_SIZE-offsetX};
-    				int[] y2 = {(j+1)*BLOCK_SIZE-offsetY-BLOCK_SIZE/2, (j+1)*BLOCK_SIZE-offsetY-BLOCK_SIZE/2, j*BLOCK_SIZE-offsetY};
-    				g.fillPolygon(x2, y2, 3);
-    				g.fillRect(i*BLOCK_SIZE-offsetX, j*BLOCK_SIZE+BLOCK_SIZE/2-offsetY, BLOCK_SIZE, BLOCK_SIZE/2);
-    				break;
-    			case 's':
-    				int[] xs = {i*BLOCK_SIZE-offsetX, (i+1)*BLOCK_SIZE-offsetX, (i)*BLOCK_SIZE-offsetX};
-    				int[] ys = {(j+1)*BLOCK_SIZE-offsetY, (j+1)*BLOCK_SIZE-offsetY, j*BLOCK_SIZE+BLOCK_SIZE/2-offsetY};
-    				g.fillPolygon(xs, ys, 3);
-    				break;
-    			case 'S':
-    				int[] xs2 = {i*BLOCK_SIZE-offsetX, (i+1)*BLOCK_SIZE-offsetX, (i)*BLOCK_SIZE-offsetX};
-    				int[] ys2 = {(j+1)*BLOCK_SIZE-offsetY-BLOCK_SIZE/2, (j+1)*BLOCK_SIZE-offsetY-BLOCK_SIZE/2, j*BLOCK_SIZE-offsetY};
-    				g.fillPolygon(xs2, ys2, 3);
-    				g.fillRect(i*BLOCK_SIZE-offsetX, j*BLOCK_SIZE+BLOCK_SIZE/2-offsetY, BLOCK_SIZE, BLOCK_SIZE/2);
-    				break;
-    			case 'O':
-    				g.fillOval(i*BLOCK_SIZE-offsetX, j*BLOCK_SIZE-offsetY, BLOCK_SIZE, BLOCK_SIZE);
-    				break;
-    			case 'D':
-    				g.setColor(Color.BLUE);
-    				g.drawRect(i*BLOCK_SIZE-offsetX, j*BLOCK_SIZE-offsetY, BLOCK_SIZE-1, BLOCK_SIZE-1);
-    				break;
-    			case ' ':
-    			}
-    		}
-
 		player.draw(g, offsetX, offsetY);
+
+		for(int i=0; i<mapSizeY; i++)
+			for(int j=0; j<mapSizeX; j++){
+				if(mapF[i][j] != -1){
+					int cx = mapF[i][j]%SourceSizeX;
+					int cy = mapF[i][j]/SourceSizeY;
+					g.drawImage(mapImage, j*BLOCK_SIZE-offsetX, i*BLOCK_SIZE-offsetY, (j+1)*BLOCK_SIZE-offsetX, (i+1)*BLOCK_SIZE-offsetY,
+						cx*BLOCK_SIZE, cy*BLOCK_SIZE, (cx+1)*BLOCK_SIZE, (cy+1)*BLOCK_SIZE, null);
+				}
+			}
     }
 }
